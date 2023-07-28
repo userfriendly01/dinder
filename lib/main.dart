@@ -6,16 +6,23 @@ import 'firebase_options.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  //TODO: If we want to try analytics service - figure out why this is breaking when trying to initialize the default app
+  // Firebase.initializeApp();
   FirebaseApp app = await Firebase.initializeApp(
     name: 'dinder',
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
   print('Initialized $app');
 
   final FirebaseApp fetchedApp = Firebase.app('dinder');
   print('Dinder was initialized, see? $fetchedApp');
 
-  runApp(const DinderApp());
+  runApp(DinderApp());
 }
 
 //Not using these currently but may be good references for examples

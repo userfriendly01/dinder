@@ -1,7 +1,12 @@
+import 'package:dinder/services/analytics.dart';
+// import 'package:firebase_analytics/observer.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
+import './services/analytics.dart';
 
 class DinderApp extends StatelessWidget {
-  const DinderApp({super.key});
+  DinderApp({super.key});
+  final FirebaseAnalyticsObserver observer = MyAnalyticsService.observer;
 
   String get name => 'dinder';
 
@@ -9,6 +14,7 @@ class DinderApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
         title: "Dinder",
+        navigatorObservers: <NavigatorObserver>[observer],
         home: Scaffold(
           appBar: AppBar(title: Text("Look at this Fancy App")),
           body: Center(child: Text("Here I am!")),
