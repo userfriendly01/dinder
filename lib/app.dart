@@ -1,4 +1,5 @@
 import 'package:dinder/models/app_state.dart';
+import 'package:dinder/screens/login_screen.dart';
 import 'package:dinder/screens/splash_screen.dart';
 import 'package:dinder/services/analytics.dart';
 // import 'package:firebase_analytics/observer.dart';
@@ -29,6 +30,7 @@ class DinderApp extends StatelessWidget {
       child: StoreConnector<AppState, Map>(
         converter: (store) => store.state.toMap(),
         builder: (context, state) {
+          print(state);
           return MaterialApp(
               title: "Dinder",
               navigatorObservers: <NavigatorObserver>[observer],
@@ -36,11 +38,26 @@ class DinderApp extends StatelessWidget {
                 colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
                 useMaterial3: true
               ),
+              // onGenerateRoute: (routeSettings) {
+              //   print(routeSettings);
+              //   print(state['isLoggedIn']);
+              //   if (state['isLoggedIn']) {
+              //     print("in the if statement");
+              //     return new MaterialPageRoute(
+              //       builder: (context) => HomeScreen(),
+              //       settings: RouteSettings(name: '/home')
+              //     );
+              //   }
+              //     return new MaterialPageRoute(
+              //       builder: (context) => LoginScreen(),
+              //       settings: RouteSettings(name: "/login")
+              //     );
+              // },
               routes: {
-                '/': (context) => SplashScreen(),
+                '/': (context) =>  LoginScreen(),
                 '/home': (context) => HomeScreen(),
                 '/friends': (context) => FriendsScreen(),
-                '/myprofile': (context) => MyProfileScreen()
+                '/myprofile': (context) => MyProfileScreen(),
               },
               initialRoute: '/'
           );
