@@ -1,10 +1,24 @@
 import 'package:dinder/app.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  FirebaseApp app = await Firebase.initializeApp(
+    name: 'dinder',
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  print('Initialized $app');
+
+  final FirebaseApp fetchedApp = Firebase.app('dinder');
+  print('Dinder was initialized, see? $fetchedApp');
+
   runApp(const DinderApp());
 }
 
+//Not using these currently but may be good references for examples
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
