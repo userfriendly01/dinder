@@ -1,11 +1,17 @@
+import 'package:dinder/models/app_state.dart';
 import 'package:dinder/services/analytics.dart';
 // import 'package:firebase_analytics/observer.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_redux/flutter_redux.dart';
+import 'package:redux/redux.dart';
+import './actions/general_actions.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
-import './services/analytics.dart';
 
 class DinderApp extends StatelessWidget {
-  DinderApp({super.key});
+  final Store<AppState> store;
+
+  DinderApp({Key? key, required this.store}) : super(key: key);
+
   final FirebaseAnalyticsObserver observer = MyAnalyticsService.observer;
   //NOTE: If we use named routes, consider adding the route name as a setting in the MaterialPageRoute to make analytics more clear
   //NOTE: More functionalities are available for areas to observe - skipped remainder of full stack flutter/firebase video on Analytics.
@@ -13,12 +19,27 @@ class DinderApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-        title: "Dinder",
-        navigatorObservers: <NavigatorObserver>[observer],
-        home: Scaffold(
-          appBar: AppBar(title: Text("Look at this Fancy App")),
-          body: Center(child: Text("Here I am!")),
-        ));
+    return StoreProvider(
+      store: store,
+      child: StoreConnector<AppState, Map>(
+        converter: (store) => store.state.toMap(),
+        builder: (context, state) {
+          return MaterialApp(
+              title: "Dinder",
+              navigatorObservers: <NavigatorObserver>[observer],
+              home: Scaffold(
+                  appBar: AppBar(title: Text("Look at this Fancy App")),
+                  body: Center(child: Text('Welcome ${state["name"]}')),
+                  floatingActionButton: FloatingActionButton(
+                    onPressed: () {
+                      StoreProvider.of<AppState>(context)
+                          .dispatch(UpdateNameAction("New Name!!"));
+                    },
+                    tooltip: 'Change Name',
+                    child: const Icon(Icons.add),
+                  )));
+        },
+      ),
+    );
   }
 }

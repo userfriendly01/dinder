@@ -2,6 +2,9 @@ import 'package:dinder/app.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
+import 'reducers/general_reducer.dart';
+import './models/app_state.dart';
+import 'package:redux/redux.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -22,7 +25,9 @@ void main() async {
   final FirebaseApp fetchedApp = Firebase.app('dinder');
   print('Dinder was initialized, see? $fetchedApp');
 
-  runApp(DinderApp());
+  final store = Store<AppState>(appReducer, initialState: AppState());
+
+  runApp(DinderApp(store: store));
 }
 
 //Not using these currently but may be good references for examples
