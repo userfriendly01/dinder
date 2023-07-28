@@ -7,6 +7,10 @@ import 'package:redux/redux.dart';
 import './actions/general_actions.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 
+import './screens/friends_screen.dart';
+import './screens/my_profile_screen.dart';
+import './screens/home_screen.dart';
+
 class DinderApp extends StatelessWidget {
   final Store<AppState> store;
 
@@ -27,17 +31,17 @@ class DinderApp extends StatelessWidget {
           return MaterialApp(
               title: "Dinder",
               navigatorObservers: <NavigatorObserver>[observer],
-              home: Scaffold(
-                  appBar: AppBar(title: Text("Look at this Fancy App")),
-                  body: Center(child: Text('Welcome ${state["name"]}')),
-                  floatingActionButton: FloatingActionButton(
-                    onPressed: () {
-                      StoreProvider.of<AppState>(context)
-                          .dispatch(UpdateNameAction("New Name!!"));
-                    },
-                    tooltip: 'Change Name',
-                    child: const Icon(Icons.add),
-                  )));
+              theme: ThemeData(
+                colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+                useMaterial3: true
+              ),
+              routes: {
+                '/': (context) => HomeScreen(),
+                '/friends': (context) => FriendsScreen(),
+                '/myprofile': (context) => MyProfileScreen()
+              },
+              initialRoute: '/'
+          );
         },
       ),
     );
