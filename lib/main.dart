@@ -1,4 +1,5 @@
 import 'package:dinder/app.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
@@ -6,15 +7,25 @@ import 'reducers/general_reducer.dart';
 import './models/app_state.dart';
 import 'package:redux/redux.dart';
 
+late final FirebaseApp app;
+late final FirebaseAuth auth;
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   //TODO: If we want to try analytics service - figure out why this is breaking when trying to initialize the default app
   // Firebase.initializeApp();
-  FirebaseApp app = await Firebase.initializeApp(
+  app = await Firebase.initializeApp(
     name: 'dinder',
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
+  auth = FirebaseAuth.instanceFor(app: app);
+  print("AUTH: ${auth.currentUser}");
+
+  bool isLoggedIn = false;
+  if (auth.currentUser != null ) {
+    isLoggedIn = true;
+  }
 
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
@@ -25,7 +36,7 @@ void main() async {
   final FirebaseApp fetchedApp = Firebase.app('dinder');
   print('Dinder was initialized, see? $fetchedApp');
 
-  final store = Store<AppState>(appReducer, initialState: AppState());
+  final store = Store<AppState>(appReducer, initialState: AppState( isLoggedIn: isLoggedIn ));
 
   runApp(DinderApp(store: store));
 }

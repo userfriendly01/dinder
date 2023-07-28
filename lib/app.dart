@@ -1,4 +1,5 @@
 import 'package:dinder/models/app_state.dart';
+import 'package:dinder/screens/splash_screen.dart';
 import 'package:dinder/services/analytics.dart';
 // import 'package:firebase_analytics/observer.dart';
 import 'package:flutter/material.dart';
@@ -36,7 +37,8 @@ class DinderApp extends StatelessWidget {
                 useMaterial3: true
               ),
               routes: {
-                '/': (context) => HomeScreen(),
+                '/': (context) => SplashScreen(),
+                '/home': (context) => HomeScreen(),
                 '/friends': (context) => FriendsScreen(),
                 '/myprofile': (context) => MyProfileScreen()
               },
