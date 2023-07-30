@@ -1,12 +1,10 @@
 import 'package:dinder/models/app_state.dart';
 import 'package:dinder/screens/login_screen.dart';
-import 'package:dinder/screens/splash_screen.dart';
 import 'package:dinder/services/analytics.dart';
 // import 'package:firebase_analytics/observer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
 import 'package:redux/redux.dart';
-import './actions/general_actions.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 
 import './screens/friends_screen.dart';
@@ -27,42 +25,34 @@ class DinderApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return StoreProvider(
       store: store,
-      child: StoreConnector<AppState, Map>(
-        converter: (store) => store.state.toMap(),
+      child: StoreConnector<AppState, _ViewModel>(
+        converter: (Store<AppState> store) => _ViewModel.fromStore(store),
         builder: (context, state) {
           print(state);
           return MaterialApp(
               title: "Dinder",
               navigatorObservers: <NavigatorObserver>[observer],
               theme: ThemeData(
-                colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-                useMaterial3: true
-              ),
-              // onGenerateRoute: (routeSettings) {
-              //   print(routeSettings);
-              //   print(state['isLoggedIn']);
-              //   if (state['isLoggedIn']) {
-              //     print("in the if statement");
-              //     return new MaterialPageRoute(
-              //       builder: (context) => HomeScreen(),
-              //       settings: RouteSettings(name: '/home')
-              //     );
-              //   }
-              //     return new MaterialPageRoute(
-              //       builder: (context) => LoginScreen(),
-              //       settings: RouteSettings(name: "/login")
-              //     );
-              // },
+                  colorScheme:
+                      ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+                  useMaterial3: true),
               routes: {
-                '/': (context) =>  LoginScreen(),
+                '/': (context) => LoginScreen(),
                 '/home': (context) => HomeScreen(),
                 '/friends': (context) => FriendsScreen(),
                 '/myprofile': (context) => MyProfileScreen(),
               },
-              initialRoute: '/'
-          );
+              initialRoute: '/');
         },
       ),
     );
+  }
+}
+
+class _ViewModel {
+  const _ViewModel();
+
+  static fromStore(Store<AppState> store) {
+    return _ViewModel();
   }
 }
