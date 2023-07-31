@@ -1,5 +1,5 @@
 import 'package:redux/redux.dart';
-import '../actions/user_actions.dart';
+import '../actions/app_user_actions.dart';
 import '../models/app_user_state.dart';
 
 Reducer<AppUser> userReducer = combineReducers<AppUser>([

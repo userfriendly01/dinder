@@ -4,7 +4,7 @@ import '../models/app_state.dart';
 import 'friends_list_reducer.dart';
 import 'meat_reducer.dart';
 import 'restaurant_reducer.dart';
-import 'user_reducer.dart';
+import 'app_user_reducer.dart';
 
 AppState appReducer(AppState state, dynamic action) {
   return AppState(

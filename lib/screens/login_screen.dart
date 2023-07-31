@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:dinder/actions/user_actions.dart';
+import 'package:dinder/actions/app_user_actions.dart';
 import 'package:dinder/models/app_state.dart';
 import 'package:dinder/screens/home_screen.dart';
 import 'package:flutter/material.dart';
