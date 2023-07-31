@@ -13,11 +13,14 @@ Reducer<User> userReducer = combineReducers<User>([
 //they wont be logged in but how will our App know to look at OUR user. Once we have all our login
 //methods in place we may want to walk through that together
 
+//Update - My brain just needed a break, we can make and use these models as much as we want, the state is going
+//to maintain the logged in user and other users will be in the other states, users in a friends list etc
+
 User logInUserReducer(
   User state,
   LogInUser action,
 ) {
-  return state.copyWith(isLoggedIn: true);
+  return action.validUser;
 }
 
 User logOutUserReducer(
