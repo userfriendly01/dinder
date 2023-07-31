@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:dinder/actions/user_actions.dart';
 import 'package:dinder/models/app_state.dart';
 import 'package:dinder/screens/home_screen.dart';
@@ -5,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
 import 'package:redux/redux.dart';
 import '../services/auth.dart';
+import '../models/app_user_state.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -63,7 +66,7 @@ class _LoginScreenState extends State<LoginScreen> {
               padding: const EdgeInsets.all(8.0),
               child: ElevatedButton(
                 onPressed: () {
-                  _onLoginWithGoogle(context);
+                  _onLoginWithGoogle(context, vm);
                 },
                 child: Text('Login with Google'),
               ),
@@ -84,6 +87,7 @@ class _LoginScreenState extends State<LoginScreen> {
       print(user);
       if (user != null) {
         // TODO: make a database entry?
+        // todo convert
         // Navigator.of(context).pop();
         Navigator.of(context)
             .push(MaterialPageRoute(builder: (context) => HomeScreen()));
@@ -99,7 +103,7 @@ class _LoginScreenState extends State<LoginScreen> {
     // ScaffoldMessenger.of(context).hideCurrentSnackBar();
   }
 
-  _onLoginWithGoogle(context) async {
+  _onLoginWithGoogle(context, _ViewModel vm) async {
         ScaffoldMessenger.of(context)
         .showSnackBar(SnackBar(content: Text("Creating User...")));
     try {
@@ -107,6 +111,8 @@ class _LoginScreenState extends State<LoginScreen> {
       final User? user = await _authService.signInWithGoogle();
       print(user);
       if (user != null) {
+        AppUser appUser = AppUser(isLoggedIn: true, email: user.email, displayName: user.displayName);
+        vm.loginUser(appUser);
         Navigator.of(context)
             .push(MaterialPageRoute(builder: (context) => HomeScreen()));
       } else {
@@ -122,6 +128,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
 class _ViewModel {
   final String? displayName;
+  final void Function(AppUser user) loginUser;
   final void Function() registerUser;
   //dont know if we'll use this and add a reducer function or just Meat()
   //May want to read into forms in flutter a bit
@@ -129,14 +136,17 @@ class _ViewModel {
   const _ViewModel({
     required this.displayName,
     required this.registerUser,
+    required this.loginUser,
   });
 
   static fromStore(Store<AppState> store) {
     return _ViewModel(
         displayName: store.state.userState.displayName,
+        loginUser: (AppUser user) => store.dispatch(LogInUser(user)),
         registerUser: () {
           //Kaleigh Note 16 - We should revisit the auth and understand how to update the state
           //through the reducer/in the correct way and tie it to this View Model
+
         });
   }
 }

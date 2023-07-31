@@ -26,7 +26,6 @@ class AuthService {
         email: email,
         password: password
       );
-      print("HELLO????");
       return userCredential.user;
     } on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {
@@ -60,8 +59,6 @@ class AuthService {
             accessToken: googleAuth.accessToken,
           )
         );
-        print("LOGGED IN!!!!");
-        print(userCredential.user);
         return userCredential.user;
       }
     } on FirebaseAuthException catch (e) {

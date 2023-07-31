@@ -1,7 +1,7 @@
-import '../models/user_state.dart';
+import '../models/app_user_state.dart';
 
 class LoadFriendsList {
-  final List<User> friends;
+  final List<AppUser> friends;
 
   LoadFriendsList(this.friends);
 
@@ -23,7 +23,7 @@ class FindFriend {
 }
 
 class AddFriend {
-  final User newFriend;
+  final AppUser newFriend;
 
   AddFriend(this.newFriend);
 
@@ -32,7 +32,7 @@ class AddFriend {
 }
 
 class RemoveFriend {
-  final User friend;
+  final AppUser friend;
 
   RemoveFriend(this.friend);
 

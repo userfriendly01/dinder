@@ -1,14 +1,14 @@
-import 'user_state.dart';
+import 'app_user_state.dart';
 
 class FriendsList {
-  final List<User> friends;
+  final List<AppUser> friends;
   final String? searchTerm;
 
   FriendsList({required this.friends, this.searchTerm});
 
   factory FriendsList.initial() {
     return FriendsList(friends: [
-      User(
+      AppUser(
           isLoggedIn: false,
           displayName: "Example Friend",
           email: "deletemelater@gmail.com")
@@ -17,7 +17,7 @@ class FriendsList {
 
   // Kaleigh Note 3: We dont REALLY need this with only one variable in this state
   // but its more for consistency and scalability if we ever add more
-  FriendsList copyWith({List<User>? friends, String? searchTerm}) {
+  FriendsList copyWith({List<AppUser>? friends, String? searchTerm}) {
     return FriendsList(
         friends: friends ?? this.friends,
         searchTerm: searchTerm ?? this.searchTerm);

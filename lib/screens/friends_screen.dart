@@ -5,7 +5,7 @@ import 'package:dinder/shared/bottom_menu.dart';
 import 'package:flutter_redux/flutter_redux.dart';
 import 'package:redux/redux.dart';
 
-import '../models/user_state.dart';
+import '../models/app_user_state.dart';
 
 class FriendsScreen extends StatelessWidget {
   const FriendsScreen({super.key});
@@ -53,11 +53,11 @@ class FriendsScreen extends StatelessWidget {
 //only reload when something they are dependent on reloads.
 
 class _ViewModel {
-  final List<User> friendsList;
+  final List<AppUser> friendsList;
   final String? searchTerm;
-  final void Function(List<User> friends) loadFriends;
-  final void Function(User friend) addFriend;
-  final void Function(User friend) removeFriend;
+  final void Function(List<AppUser> friends) loadFriends;
+  final void Function(AppUser friend) addFriend;
+  final void Function(AppUser friend) removeFriend;
   final void Function(String searchTerm) searchFriend;
 
   const _ViewModel(
@@ -77,10 +77,10 @@ class _ViewModel {
     return _ViewModel(
         friendsList: store.state.friendsListState.friends,
         searchTerm: store.state.friendsListState.searchTerm,
-        loadFriends: (List<User> friends) =>
+        loadFriends: (List<AppUser> friends) =>
             store.dispatch(LoadFriendsList(friends)),
-        addFriend: (User friend) => store.dispatch(AddFriend(friend)),
-        removeFriend: (User friend) => store.dispatch(RemoveFriend(friend)),
+        addFriend: (AppUser friend) => store.dispatch(AddFriend(friend)),
+        removeFriend: (AppUser friend) => store.dispatch(RemoveFriend(friend)),
         searchFriend: (String searchTerm) =>
             store.dispatch(FindFriend(searchTerm)));
   }
