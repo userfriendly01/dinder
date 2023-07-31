@@ -41,6 +41,19 @@ class AuthService {
 
   }
 
+  Future<User?> signInWithEmailAndPassword({
+    required String email,
+    required String password
+  }) async {
+    UserCredential? user = await _firebaseAuth.signInWithEmailAndPassword(email: email, password: password);
+
+    if (user != null) {
+      print('user exists');
+      print(user.user);
+      return user.user;
+    }
+  }
+
   Future<User?> signInWithGoogle() async {
     try {
       final GoogleSignIn googleSignIn = GoogleSignIn(

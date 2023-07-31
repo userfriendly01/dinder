@@ -47,7 +47,7 @@ class _LoginScreenState extends State<LoginScreen> {
               padding: const EdgeInsets.all(8.0),
               child: ElevatedButton(
                   onPressed: () {
-                    _onSubmitRegisterButton(context);
+                    _onSubmitRegisterButton(context, "Register");
                   },
                   child: Text('Register')),
             ),
@@ -55,6 +55,7 @@ class _LoginScreenState extends State<LoginScreen> {
               padding: const EdgeInsets.all(8.0),
               child: ElevatedButton(
                 onPressed: () {
+                  _onSubmitRegisterButton(context, "Login");
                   // Todo: Still need to implement this...
                   // StoreProvider.of<AppState>(context)
                   //     .dispatch(UpdateIsLoggedIn(true));
@@ -77,13 +78,18 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  _onSubmitRegisterButton(context) async {
+  _onSubmitRegisterButton(context, String loginType) async {
     ScaffoldMessenger.of(context)
         .showSnackBar(SnackBar(content: Text("Creating User...")));
     try {
+      User? user;
       print('authservice ${_authService.toString()}');
-      final User? user = await _authService.createUserWithEmailAndPassword(
+      if (loginType == "Register") {
+        user = await _authService.createUserWithEmailAndPassword(
           email: email.text, password: password.text);
+      } else {
+        user = await _authService.signInWithEmailAndPassword(email: email.text, password: password.text);
+      }
       print(user);
       if (user != null) {
         // TODO: make a database entry?
@@ -98,8 +104,6 @@ class _LoginScreenState extends State<LoginScreen> {
       print('CATCH');
       print(e);
     }
-
-
     // ScaffoldMessenger.of(context).hideCurrentSnackBar();
   }
 
