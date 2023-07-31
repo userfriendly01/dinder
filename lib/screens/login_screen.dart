@@ -44,7 +44,7 @@ class _LoginScreenState extends State<LoginScreen> {
               padding: const EdgeInsets.all(8.0),
               child: ElevatedButton(
                   onPressed: () {
-                    _onSubmitLoginButton(context);
+                    _onSubmitRegisterButton(context);
                   },
                   child: Text('Register')),
             ),
@@ -52,10 +52,20 @@ class _LoginScreenState extends State<LoginScreen> {
               padding: const EdgeInsets.all(8.0),
               child: ElevatedButton(
                 onPressed: () {
-                  StoreProvider.of<AppState>(context)
-                      .dispatch(UpdateIsLoggedIn(true));
+                  // Todo: Still need to implement this...
+                  // StoreProvider.of<AppState>(context)
+                  //     .dispatch(UpdateIsLoggedIn(true));
                 },
-                child: Text('Login'),
+                child: Text('Login with email and password'),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: ElevatedButton(
+                onPressed: () {
+                  _onLoginWithGoogle(context);
+                },
+                child: Text('Login with Google'),
               ),
             )
           ]),
@@ -64,7 +74,7 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  _onSubmitLoginButton(context) async {
+  _onSubmitRegisterButton(context) async {
     ScaffoldMessenger.of(context)
         .showSnackBar(SnackBar(content: Text("Creating User...")));
     try {
@@ -73,6 +83,7 @@ class _LoginScreenState extends State<LoginScreen> {
           email: email.text, password: password.text);
       print(user);
       if (user != null) {
+        // TODO: make a database entry?
         // Navigator.of(context).pop();
         Navigator.of(context)
             .push(MaterialPageRoute(builder: (context) => HomeScreen()));
@@ -84,8 +95,29 @@ class _LoginScreenState extends State<LoginScreen> {
       print(e);
     }
 
+
     // ScaffoldMessenger.of(context).hideCurrentSnackBar();
   }
+
+  _onLoginWithGoogle(context) async {
+        ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text("Creating User...")));
+    try {
+      print('authservice ${_authService.toString()}');
+      final User? user = await _authService.signInWithGoogle();
+      print(user);
+      if (user != null) {
+        Navigator.of(context)
+            .push(MaterialPageRoute(builder: (context) => HomeScreen()));
+      } else {
+        print("bummer");
+      }
+    } catch (e) {
+      print('CATCH');
+      print(e);
+    }
+  }
+
 }
 
 class _ViewModel {
