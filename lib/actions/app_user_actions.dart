@@ -1,4 +1,4 @@
-import "../models/user_state.dart";
+import '../models/app_user_state.dart';
 
 class UpdateIsLoggedIn {
   final bool updatedIsLoggedIn;
@@ -11,7 +11,7 @@ class UpdateIsLoggedIn {
 }
 
 class LogInUser {
-  final User validUser;
+  final AppUser validUser;
 
   LogInUser(this.validUser);
   @override
@@ -19,7 +19,7 @@ class LogInUser {
 }
 
 class LogOutUser {
-  final User user;
+  final AppUser user;
 
   LogOutUser(this.user);
   @override

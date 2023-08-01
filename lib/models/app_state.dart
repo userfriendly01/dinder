@@ -4,10 +4,10 @@ import 'package:dinder/models/meat_state.dart';
 import 'package:dinder/models/restaurant_state.dart';
 
 import 'locations_state.dart';
-import 'user_state.dart';
+import 'app_user_state.dart';
 
 class AppState {
-  final User userState;
+  final AppUser userState;
   final FriendsList friendsListState;
   final LocationOptions locationsState;
   final Meat meatState;
@@ -24,7 +24,7 @@ class AppState {
 
   factory AppState.initial(bool isLoggedIn) {
     return AppState(
-        userState: User.initial(isLoggedIn),
+        userState: AppUser.initial(isLoggedIn),
         friendsListState: FriendsList.initial(),
         locationsState: LocationOptions.initial(),
         meatState: Meat.initial(),

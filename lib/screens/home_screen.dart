@@ -1,4 +1,4 @@
-import 'package:dinder/actions/user_actions.dart';
+import 'package:dinder/actions/app_user_actions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
 import 'package:redux/redux.dart';
