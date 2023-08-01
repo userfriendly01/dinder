@@ -20,14 +20,7 @@ class AuthService {
     try {
       print("createUserWithEmailAndPassword");
       final userCredential = await _firebaseAuth.createUserWithEmailAndPassword(
-<<<<<<< HEAD
           email: email, password: password);
-      print("HELLO????");
-=======
-        email: email,
-        password: password
-      );
->>>>>>> 70efdb717f031ff1c90e75f2d4e22a03ddb32cc5
       return userCredential.user;
     } on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {
@@ -42,11 +35,10 @@ class AuthService {
     }
   }
 
-  Future<User?> signInWithEmailAndPassword({
-    required String email,
-    required String password
-  }) async {
-    UserCredential? user = await _firebaseAuth.signInWithEmailAndPassword(email: email, password: password);
+  Future<User?> signInWithEmailAndPassword(
+      {required String email, required String password}) async {
+    UserCredential? user = await _firebaseAuth.signInWithEmailAndPassword(
+        email: email, password: password);
 
     if (user != null) {
       print('user exists');
@@ -65,22 +57,11 @@ class AuthService {
 
       if (googleUser != null) {
         final googleAuth = await googleUser.authentication;
-<<<<<<< HEAD
         final userCredential = await _firebaseAuth
             .signInWithCredential(GoogleAuthProvider.credential(
           idToken: googleAuth.idToken,
           accessToken: googleAuth.accessToken,
         ));
-        print("LOGGED IN!!!!");
-        print(userCredential.user);
-=======
-        final userCredential = await _firebaseAuth.signInWithCredential(
-          GoogleAuthProvider.credential(
-            idToken: googleAuth.idToken,
-            accessToken: googleAuth.accessToken,
-          )
-        );
->>>>>>> 70efdb717f031ff1c90e75f2d4e22a03ddb32cc5
         return userCredential.user;
       }
     } on FirebaseAuthException catch (e) {
