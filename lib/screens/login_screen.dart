@@ -115,7 +115,8 @@ class _LoginScreenState extends State<LoginScreen> {
       final User? user = await _authService.signInWithGoogle();
       print(user);
       if (user != null) {
-        AppUser appUser = AppUser(isLoggedIn: true, email: user.email, displayName: user.displayName);
+        print('user.uid ${user.uid}');
+        AppUser appUser = AppUser(id: user.uid, isLoggedIn: true, email: user.email, displayName: user.displayName, friends: [], dismissed: []);
         vm.loginUser(appUser);
         Navigator.of(context)
             .push(MaterialPageRoute(builder: (context) => HomeScreen()));

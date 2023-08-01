@@ -18,12 +18,13 @@ class FirestoreService {
     final CollectionReference collection = _firebaseFirestore.collection(path);
 
     return collection.snapshots().map(
-      (QueryDocumentSnapshot querySnapshot) {
+      (QuerySnapshot querySnapshot) {
         return querySnapshot.docs.map((
           QueryDocumentSnapshot snapshot
         ) {
-          final Map<String, dynamic> data = snapshot.data()!;
-
+          final data = snapshot.data()! as Map<String, dynamic>;
+          print('data');
+          print(data);
           data['id'] = snapshot.id;
 
           return AppUser.fromJson(data);
@@ -39,7 +40,7 @@ class FirestoreService {
 
     return snapshots.map(
       (DocumentSnapshot snapshot) {
-        final Map<String, dynamic> data = snapshot.data()!;
+        final data = snapshot.data()!  as Map<String, dynamic>;
           data['id'] = snapshot.id;
 
           return AppUser.fromJson(data);

@@ -4,11 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:dinder/shared/bottom_menu.dart';
 import 'package:flutter_redux/flutter_redux.dart';
 import 'package:redux/redux.dart';
+import '../services/firestore.dart';
 
 import '../models/app_user_state.dart';
 
 class FriendsScreen extends StatelessWidget {
-  const FriendsScreen({super.key});
+  FriendsScreen({super.key});
 
   //Kaleigh Note 10: I refactored this to use the view model.. kinda cleaner.. kinda cool.. setup feels tedious but clean
   //Obviously these arent complete, figured I'd wire up something as a guideline for when we wire up more
@@ -18,6 +19,13 @@ class FriendsScreen extends StatelessWidget {
     return StoreConnector<AppState, _ViewModel>(
       converter: (Store<AppState> store) => _ViewModel.fromStore(store),
       builder: (BuildContext context, _ViewModel vm) {
+        print(vm.friendsList);
+        if (vm.friendsList.isEmpty) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            print("calling load friends...");
+             vm.loadFriends();
+          });
+        }
         return Scaffold(
             bottomNavigationBar: BottomMenu(currentIndex: 1),
             body: ListView.separated(
@@ -30,12 +38,18 @@ class FriendsScreen extends StatelessWidget {
                 itemBuilder: (BuildContext context, int index) {
                   final friend = vm.friendsList[index];
                   return ListTile(
-                    title: Text(" ${friend.displayName}"),
-                    trailing: IconButton(
+                    title: Text(" ${friend.displayName} ${friend.id}"),
+                    
+                    trailing: vm.appUser.friends.contains('${friend.id}') ? IconButton(
                       onPressed: () {
                         vm.removeFriend(friend);
                       },
                       icon: const Icon(Icons.delete),
+                    ) : IconButton(
+                      onPressed: () {
+                        vm.removeFriend(friend);
+                      },
+                      icon: const Icon(Icons.add),
                     ),
                   );
                 }));
@@ -53,15 +67,17 @@ class FriendsScreen extends StatelessWidget {
 //only reload when something they are dependent on reloads.
 
 class _ViewModel {
+  final AppUser appUser;
   final List<AppUser> friendsList;
   final String? searchTerm;
-  final void Function(List<AppUser> friends) loadFriends;
+  final void Function() loadFriends;
   final void Function(AppUser friend) addFriend;
   final void Function(AppUser friend) removeFriend;
   final void Function(String searchTerm) searchFriend;
 
   const _ViewModel(
-      {required this.friendsList,
+      {required this.appUser,
+      required this.friendsList,
       required this.searchTerm,
       required this.loadFriends,
       required this.addFriend,
@@ -74,11 +90,22 @@ class _ViewModel {
   // but since that's going to be more of a fetch/API call to firebase auth, I didnt add it here
 
   static fromStore(Store<AppState> store) {
+    final FirestoreService _firestoreService = FirestoreService.instance;
+
+    List<AppUser> filterFriends() {
+      return store.state.friendsListState.friends.where((element) => element.id != store.state.userState.id).toList();
+    }
+
     return _ViewModel(
-        friendsList: store.state.friendsListState.friends,
+        appUser: store.state.userState,
+        friendsList: filterFriends(),
         searchTerm: store.state.friendsListState.searchTerm,
-        loadFriends: (List<AppUser> friends) =>
-            store.dispatch(LoadFriendsList(friends)),
+        loadFriends: () async {
+          final possibleFriends = await _firestoreService.getAllUsers().first;
+          print(possibleFriends);
+          print('yay');
+            store.dispatch(LoadFriendsList(possibleFriends));
+        },
         addFriend: (AppUser friend) => store.dispatch(AddFriend(friend)),
         removeFriend: (AppUser friend) => store.dispatch(RemoveFriend(friend)),
         searchFriend: (String searchTerm) =>

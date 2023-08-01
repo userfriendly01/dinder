@@ -7,12 +7,7 @@ class FriendsList {
   FriendsList({required this.friends, this.searchTerm});
 
   factory FriendsList.initial() {
-    return FriendsList(friends: [
-      AppUser(
-          isLoggedIn: false,
-          displayName: "Example Friend",
-          email: "deletemelater@gmail.com")
-    ], searchTerm: "");
+    return FriendsList(friends: [], searchTerm: "");
   }
 
   // Kaleigh Note 3: We dont REALLY need this with only one variable in this state

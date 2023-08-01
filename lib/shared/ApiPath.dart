@@ -1,4 +1,4 @@
 class ApiPath {
-  static String get allUsers => 'AllUsers';
-  static String userById(String id) => 'User/$id';
+  static String get allUsers => 'Users';
+  static String userById(String id) => 'Users/$id';
 }

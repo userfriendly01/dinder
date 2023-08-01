@@ -25,6 +25,12 @@ class HomeScreen extends StatelessWidget {
         ;
         return Scaffold(
           bottomNavigationBar: BottomMenu(currentIndex: 0),
+          floatingActionButton: IconButton(
+            icon: Icon(Icons.fastfood_outlined),
+            onPressed: () {
+              // print();
+            },
+          ),
           body: Column(
             children: [
               Text("HOME!"),
