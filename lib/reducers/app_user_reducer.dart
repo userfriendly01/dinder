@@ -6,6 +6,7 @@ Reducer<AppUser> userReducer = combineReducers<AppUser>([
   TypedReducer<AppUser, LogInUser>(logInUserReducer),
   TypedReducer<AppUser, LogOutUser>(logOutUserReducer),
   TypedReducer<AppUser, UpdateDisplayName>(updateDisplayNameReducer),
+  TypedReducer<AppUser, UpdateFriends>(updateFriendsReducer),
 ]);
 
 //Kaleigh and Faith Note: Not sure how it will work using AppUser around the app for friends
@@ -35,4 +36,11 @@ AppUser updateDisplayNameReducer(
   UpdateDisplayName action,
 ) {
   return state.copyWith(displayName: action.newName);
+}
+
+AppUser updateFriendsReducer(
+  AppUser state,
+  UpdateFriends action,
+) {
+  return state.copyWith(friends: action.newFriends);
 }

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:dinder/shared/bottom_menu.dart';
 import 'package:flutter_redux/flutter_redux.dart';
 import 'package:redux/redux.dart';
+import '../actions/app_user_actions.dart';
 import '../services/firestore.dart';
 
 import '../models/app_user_state.dart';
@@ -47,7 +48,7 @@ class FriendsScreen extends StatelessWidget {
                       icon: const Icon(Icons.delete),
                     ) : IconButton(
                       onPressed: () {
-                        vm.removeFriend(friend);
+                        vm.addFriend(friend);
                       },
                       icon: const Icon(Icons.add),
                     ),
@@ -103,11 +104,18 @@ class _ViewModel {
         loadFriends: () async {
           final possibleFriends = await _firestoreService.getAllUsers().first;
           print(possibleFriends);
-          print('yay');
+          print('yay possible friends ^');
             store.dispatch(LoadFriendsList(possibleFriends));
         },
-        addFriend: (AppUser friend) => store.dispatch(AddFriend(friend)),
-        removeFriend: (AppUser friend) => store.dispatch(RemoveFriend(friend)),
+        addFriend: (AppUser friend) async {
+          List<String> newFriends = [...store.state.userState.friends, friend.id];
+          await _firestoreService.updateUserFriends(store.state.userState.id, newFriends);
+          store.dispatch(UpdateFriends(newFriends));
+        },
+        removeFriend: (AppUser friend) {
+          List<String> newFriends = store.state.userState.friends.where((element) => element != friend.id).toList();
+          store.dispatch(UpdateFriends(newFriends));
+        },
         searchFriend: (String searchTerm) =>
             store.dispatch(FindFriend(searchTerm)));
   }

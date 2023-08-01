@@ -34,3 +34,12 @@ class UpdateDisplayName {
   @override
   String toString() => "UpdateDisplayName(user: $newName)";
 }
+
+class UpdateFriends {
+  final List<String> newFriends;
+
+  UpdateFriends(this.newFriends);
+
+  @override
+  String toString() => "UpdateFriends(friends: $newFriends)";
+}

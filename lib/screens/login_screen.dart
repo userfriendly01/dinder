@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:dinder/actions/app_user_actions.dart';
+import 'package:dinder/main.dart';
 import 'package:dinder/models/app_state.dart';
 import 'package:dinder/screens/home_screen.dart';
 import 'package:flutter/material.dart';
@@ -9,6 +10,7 @@ import 'package:redux/redux.dart';
 import '../services/auth.dart';
 import '../models/app_user_state.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import '../services/firestore.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -116,8 +118,11 @@ class _LoginScreenState extends State<LoginScreen> {
       print(user);
       if (user != null) {
         print('user.uid ${user.uid}');
-        AppUser appUser = AppUser(id: user.uid, isLoggedIn: true, email: user.email, displayName: user.displayName, friends: [], dismissed: []);
-        vm.loginUser(appUser);
+        // try to fetch user from db, if not there, add them
+        AppUser newUser = AppUser(id: user.uid, isLoggedIn: true, displayName: user.displayName, email: user.email, friends: [], dismissed: []);
+        vm.fetchUser(user.uid, newUser);
+        // AppUser appUser = AppUser(id: user.uid, isLoggedIn: true, email: user.email, displayName: user.displayName, friends: [], dismissed: []);
+        // vm.loginUser(appUser);
         Navigator.of(context)
             .push(MaterialPageRoute(builder: (context) => HomeScreen()));
       } else {
@@ -135,19 +140,30 @@ class _ViewModel {
   final String? displayName;
   final void Function(AppUser user) loginUser;
   final void Function() registerUser;
+  final void Function(String id, AppUser authUser) fetchUser;
   //dont know if we'll use this and add a reducer function or just Meat()
   //May want to read into forms in flutter a bit
 
-  const _ViewModel({
+  static FirestoreService _firestoreService = FirestoreService.instance;
+
+
+  _ViewModel({
     required this.displayName,
     required this.registerUser,
     required this.loginUser,
+    required this.fetchUser
   });
 
   static fromStore(Store<AppState> store) {
     return _ViewModel(
         displayName: store.state.userState.displayName,
         loginUser: (AppUser user) => store.dispatch(LogInUser(user)),
+        fetchUser: (String id, AppUser authUser) {
+          Stream<AppUser> user = _firestoreService.getUser(id);
+          if (user == null) {
+            _firestoreService.createUser(id, {})
+          }
+        },
         registerUser: () {
           //Kaleigh Note 16 - We should revisit the auth and understand how to update the state
           //through the reducer/in the correct way and tie it to this View Model

@@ -4,7 +4,7 @@ part 'app_user_state.g.dart';
 
 @JsonSerializable()
 class AppUser {
-  final String? id;
+  final String id;
   final bool? isLoggedIn;
   final String? displayName;
   final String? email;
@@ -12,7 +12,7 @@ class AppUser {
   final List<String> dismissed;
 
 
-  AppUser({this.id, this.isLoggedIn, this.displayName, this.email, required this.friends, required this.dismissed});
+  AppUser({required this.id, this.isLoggedIn, this.displayName, this.email, required this.friends, required this.dismissed});
 
   factory AppUser.initial(bool isLoggedIn) {
     return AppUser(id: "", isLoggedIn: isLoggedIn, displayName: "", email: "", friends: [], dismissed: []);

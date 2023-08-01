@@ -49,6 +49,29 @@ class FirestoreService {
     );
   }
 
+
+  Future<void> updateUserFriends(String id, List<String> friends) async {
+    try {
+      final String path = ApiPath.userById(id);
+      final DocumentReference document = _firebaseFirestore.doc(path);
+
+      await document.set(
+        {
+          'friends': friends
+        },
+        SetOptions(merge: true),
+      );
+    } catch (e) {
+      print('User update friends failed $e');
+    }
+  }
+
+  Future<void> createUser(String id, AppUser user) async {
+    final String path = ApiPath.userById(id);
+    final CollectionReference collection = _firebaseFirestore.collection(path);
+
+    await collection.add(user.toJson());
+  }
   
 }
 
