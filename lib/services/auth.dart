@@ -2,6 +2,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
+import '../models/app_user_state.dart';
+
 class AuthService {
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
 
@@ -15,13 +17,18 @@ class AuthService {
 
   User? get currentUser => _firebaseAuth.currentUser;
 
-  Future<User?> createUserWithEmailAndPassword(
+  AppUser emptyUser = AppUser.initial(false);
+
+  Future<AppUser> createUserWithEmailAndPassword(
       {required String email, required String password}) async {
     try {
       print("createUserWithEmailAndPassword");
       final userCredential = await _firebaseAuth.createUserWithEmailAndPassword(
           email: email, password: password);
-      return userCredential.user;
+
+      AppUser signedInUser =
+          AppUser.fromJson(userCredential.user as Map<String, dynamic>);
+      return signedInUser;
     } on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {
         print('WEAK PASSWORD LOSER');
@@ -33,21 +40,23 @@ class AuthService {
     } catch (e) {
       print("non firebase exception ${e.toString()}");
     }
+    return emptyUser;
   }
 
-  Future<User?> signInWithEmailAndPassword(
+  Future<AppUser> signInWithEmailAndPassword(
       {required String email, required String password}) async {
-    UserCredential? user = await _firebaseAuth.signInWithEmailAndPassword(
-        email: email, password: password);
+    UserCredential? userCredential = await _firebaseAuth
+        .signInWithEmailAndPassword(email: email, password: password);
 
-    if (user != null) {
-      print('user exists');
-      print(user.user);
-      return user.user;
+    if (userCredential.user != null) {
+      AppUser signedInUser =
+          AppUser.fromJson(userCredential.user as Map<String, dynamic>);
+      return signedInUser;
     }
+    return emptyUser;
   }
 
-  Future<User?> signInWithGoogle() async {
+  Future<AppUser> signInWithGoogle() async {
     try {
       final GoogleSignIn googleSignIn = GoogleSignIn(scopes: [
         'https://www.googleapis.com/auth/userinfo.email',
@@ -62,7 +71,15 @@ class AuthService {
           idToken: googleAuth.idToken,
           accessToken: googleAuth.accessToken,
         ));
-        return userCredential.user;
+        //this is coming through as a user even when we use the as
+        AppUser signedInUser = AppUser(
+            id: userCredential.user!.uid,
+            isLoggedIn: true,
+            displayName: userCredential.user!.displayName,
+            email: userCredential.user!.email,
+            friends: [],
+            dismissed: []);
+        return signedInUser;
       }
     } on FirebaseAuthException catch (e) {
       print("Sign in with Google failed.");
@@ -70,5 +87,6 @@ class AuthService {
     } catch (e) {
       print(e.toString());
     }
+    return emptyUser;
   }
 }

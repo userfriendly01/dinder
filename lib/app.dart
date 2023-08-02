@@ -28,7 +28,6 @@ class DinderApp extends StatelessWidget {
       child: StoreConnector<AppState, _ViewModel>(
         converter: (Store<AppState> store) => _ViewModel.fromStore(store),
         builder: (context, state) {
-          print(state);
           return MaterialApp(
               title: "Dinder",
               navigatorObservers: <NavigatorObserver>[observer],

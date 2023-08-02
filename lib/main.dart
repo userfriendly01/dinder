@@ -17,24 +17,13 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  auth = FirebaseAuth.instanceFor(app: app);
-
-  bool isLoggedIn = false;
-  if (auth.currentUser != null) {
-    isLoggedIn = true;
-  }
-
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
   print('Initialized $app');
-
-  final FirebaseApp fetchedApp = Firebase.app('dinder');
-  print('Dinder was initialized, see? $fetchedApp');
-
   final store =
-      Store<AppState>(appReducer, initialState: AppState.initial(isLoggedIn));
+      Store<AppState>(appReducer, initialState: AppState.initial(false));
 
   runApp(DinderApp(store: store));
 }

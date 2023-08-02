@@ -11,44 +11,45 @@ class FirestoreService {
 
   static FirestoreService get instance => _service;
 
-
-
   Stream<List<AppUser>> getAllUsers() {
     final String path = ApiPath.allUsers;
     final CollectionReference collection = _firebaseFirestore.collection(path);
 
     return collection.snapshots().map(
       (QuerySnapshot querySnapshot) {
-        return querySnapshot.docs.map((
-          QueryDocumentSnapshot snapshot
-        ) {
-          final data = snapshot.data()! as Map<String, dynamic>;
-          print('data');
-          print(data);
-          data['id'] = snapshot.id;
+        return querySnapshot.docs.map(
+          (QueryDocumentSnapshot snapshot) {
+            final data = snapshot.data()! as Map<String, dynamic>;
+            print('data');
+            print(data);
+            data['id'] = snapshot.id;
+            data['isLoggedIn'] = false;
 
-          return AppUser.fromJson(data);
-        },
+            return AppUser.fromJson(data);
+          },
         ).toList();
       },
     );
   }
 
-  Stream<AppUser> getUser(String id) {
+  Stream<AppUser?> getUser(String id) {
     final String path = ApiPath.userById(id);
-    final Stream<DocumentSnapshot> snapshots = _firebaseFirestore.doc(path).snapshots();
+    final Stream<DocumentSnapshot> snapshots =
+        _firebaseFirestore.doc(path).snapshots();
 
-    return snapshots.map(
-      (DocumentSnapshot snapshot) {
-        final data = snapshot.data()!  as Map<String, dynamic>;
-          data['id'] = snapshot.id;
-
-          return AppUser.fromJson(data);
-
+    return snapshots.map((DocumentSnapshot snapshot) {
+      final data = snapshot.data();
+      if (data != null && id == snapshot.id) {
+        final formattedData = data as Map<String, dynamic>;
+        formattedData['id'] = id;
+        formattedData['isLoggedIn'] = true;
+        print("FAITH $data");
+        return AppUser.fromJson(data);
+      } else {
+        print("The user was either null or $id didnt match ${snapshot.id}");
       }
-    );
+    });
   }
-
 
   Future<void> updateUserFriends(String id, List<String> friends) async {
     try {
@@ -56,9 +57,7 @@ class FirestoreService {
       final DocumentReference document = _firebaseFirestore.doc(path);
 
       await document.set(
-        {
-          'friends': friends
-        },
+        {'friends': friends},
         SetOptions(merge: true),
       );
     } catch (e) {
@@ -72,6 +71,4 @@ class FirestoreService {
 
     await collection.add(user.toJson());
   }
-  
 }
-

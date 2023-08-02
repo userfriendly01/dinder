@@ -20,28 +20,31 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final TextEditingController email = TextEditingController();
-  final TextEditingController password = TextEditingController();
-
-  final AuthService _authService = AuthService.instance;
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
-    print(_authService.currentUser);
     return StoreConnector<AppState, _ViewModel>(
+      onWillChange: (previousViewModel, newViewModel) {
+        if (previousViewModel?.isLoggedIn != newViewModel.isLoggedIn &&
+            newViewModel.isLoggedIn) {
+          Navigator.pushNamed(context, '/home');
+        }
+      },
       converter: (Store<AppState> store) => _ViewModel.fromStore(store),
       builder: (BuildContext context, _ViewModel vm) {
         return Scaffold(
             body: Padding(
           padding: const EdgeInsets.all(48.0),
           child: Column(children: [
-            Text("LOGIN"),
+            const Text("LOGIN"),
             TextField(
-              controller: email,
+              controller: emailController,
               decoration: InputDecoration(hintText: "Email"),
             ),
             TextField(
-              controller: password,
+              controller: passwordController,
               obscureText: true,
               decoration: InputDecoration(hintText: "Password"),
             ),
@@ -49,7 +52,8 @@ class _LoginScreenState extends State<LoginScreen> {
               padding: const EdgeInsets.all(8.0),
               child: ElevatedButton(
                   onPressed: () {
-                    _onSubmitRegisterButton(context, "Register");
+                    vm.onSubmitEmailPassword(emailController.text,
+                        passwordController.text, "Register");
                   },
                   child: Text('Register')),
             ),
@@ -57,10 +61,10 @@ class _LoginScreenState extends State<LoginScreen> {
               padding: const EdgeInsets.all(8.0),
               child: ElevatedButton(
                 onPressed: () {
-                  _onSubmitRegisterButton(context, "Login");
-                  // Todo: Still need to implement this...
-                  // StoreProvider.of<AppState>(context)
-                  //     .dispatch(UpdateIsLoggedIn(true));
+                  ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text("Creating User...")));
+                  vm.onSubmitEmailPassword(
+                      emailController.text, passwordController.text, "Login");
                 },
                 child: Text('Login with email and password'),
               ),
@@ -69,7 +73,9 @@ class _LoginScreenState extends State<LoginScreen> {
               padding: const EdgeInsets.all(8.0),
               child: ElevatedButton(
                 onPressed: () {
-                  _onLoginWithGoogle(context, vm);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text("Creating User...")));
+                  vm.onSubmitGoogle();
                 },
                 child: Text('Login with Google'),
               ),
@@ -79,95 +85,128 @@ class _LoginScreenState extends State<LoginScreen> {
       },
     );
   }
-
-  _onSubmitRegisterButton(context, String loginType) async {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text("Creating User...")));
-    try {
-      User? user;
-      print('authservice ${_authService.toString()}');
-      if (loginType == "Register") {
-        user = await _authService.createUserWithEmailAndPassword(
-          email: email.text, password: password.text);
-      } else {
-        user = await _authService.signInWithEmailAndPassword(email: email.text, password: password.text);
-      }
-      print(user);
-      if (user != null) {
-        // TODO: make a database entry?
-        // todo convert
-        // Navigator.of(context).pop();
-        Navigator.of(context)
-            .push(MaterialPageRoute(builder: (context) => HomeScreen()));
-      } else {
-        print("bummer");
-      }
-    } catch (e) {
-      print('CATCH');
-      print(e);
-    }
-    // ScaffoldMessenger.of(context).hideCurrentSnackBar();
-  }
-
-  _onLoginWithGoogle(context, _ViewModel vm) async {
-        ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text("Creating User...")));
-    try {
-      print('authservice ${_authService.toString()}');
-      final User? user = await _authService.signInWithGoogle();
-      print(user);
-      if (user != null) {
-        print('user.uid ${user.uid}');
-        // try to fetch user from db, if not there, add them
-        AppUser newUser = AppUser(id: user.uid, isLoggedIn: true, displayName: user.displayName, email: user.email, friends: [], dismissed: []);
-        vm.fetchUser(user.uid, newUser);
-        // AppUser appUser = AppUser(id: user.uid, isLoggedIn: true, email: user.email, displayName: user.displayName, friends: [], dismissed: []);
-        // vm.loginUser(appUser);
-        Navigator.of(context)
-            .push(MaterialPageRoute(builder: (context) => HomeScreen()));
-      } else {
-        print("bummer");
-      }
-    } catch (e) {
-      print('CATCH');
-      print(e);
-    }
-  }
-
 }
 
 class _ViewModel {
   final String? displayName;
-  final void Function(AppUser user) loginUser;
-  final void Function() registerUser;
-  final void Function(String id, AppUser authUser) fetchUser;
-  //dont know if we'll use this and add a reducer function or just Meat()
-  //May want to read into forms in flutter a bit
+  final bool isLoggedIn;
+  final dynamic Function(String email, String password, String loginType)
+      onSubmitEmailPassword;
+  final dynamic Function() onSubmitGoogle;
 
   static FirestoreService _firestoreService = FirestoreService.instance;
-
+  static AuthService _authService = AuthService.instance;
 
   _ViewModel({
     required this.displayName,
-    required this.registerUser,
-    required this.loginUser,
-    required this.fetchUser
+    required this.isLoggedIn,
+    required this.onSubmitGoogle,
+    required this.onSubmitEmailPassword,
   });
 
   static fromStore(Store<AppState> store) {
+    print("FAITH CURRENT USER ${_authService.currentUser}");
+    print("FAITH CURRENT STATE ${store.state}");
+
+    void logInUser(String id, AppUser loggedInUser) async {
+      final AppUser? user = await _firestoreService.getUser(id).first;
+      print("FAITH $user");
+      if (user == null) {
+        _firestoreService.createUser(id, loggedInUser);
+      } else {
+        loggedInUser = loggedInUser.copyWith(
+            friends: user.friends, dismissed: user.dismissed);
+      }
+      store.dispatch(LogInUser(loggedInUser));
+    }
+
     return _ViewModel(
+        isLoggedIn: store.state.userState.isLoggedIn,
         displayName: store.state.userState.displayName,
-        loginUser: (AppUser user) => store.dispatch(LogInUser(user)),
-        fetchUser: (String id, AppUser authUser) {
-          Stream<AppUser> user = _firestoreService.getUser(id);
-          if (user == null) {
-            _firestoreService.createUser(id, {})
+        onSubmitEmailPassword:
+            (String email, String password, String loginType) async {
+          try {
+            AppUser? user;
+            if (loginType == "Register") {
+              user = await _authService.createUserWithEmailAndPassword(
+                  email: email, password: password);
+            } else {
+              user = await _authService.signInWithEmailAndPassword(
+                  email: email, password: password);
+            }
+            // This user is either a legit user thats logged in or a logged out dummy user
+            bool isUserValid = user.isLoggedIn;
+            if (isUserValid) {
+              logInUser(user.id, user);
+            } else {
+              print("bummer");
+            }
+          } catch (e) {
+            print('CATCH $e');
           }
         },
-        registerUser: () {
-          //Kaleigh Note 16 - We should revisit the auth and understand how to update the state
-          //through the reducer/in the correct way and tie it to this View Model
-
+        onSubmitGoogle: () async {
+          try {
+            print('authservice ${_authService.toString()}');
+            final AppUser user = await _authService.signInWithGoogle();
+            print(user);
+            if (user.isLoggedIn) {
+              logInUser(user.id, user);
+            } else {
+              print("bummer");
+            }
+          } catch (e) {
+            print('CATCH');
+            print(e);
+          }
         });
   }
+
+  // _onSubmitEmailPassword(context, String loginType) async {
+  //   ScaffoldMessenger.of(context)
+  //       .showSnackBar(SnackBar(content: Text("Creating User...")));
+  //   try {
+  //     AppUser? user;
+  //     if (loginType == "Register") {
+  //       user = await _authService.createUserWithEmailAndPassword(
+  //           email: emailController.text, password: passwordController.text);
+  //     } else {
+  //       user = await _authService.signInWithEmailAndPassword(
+  //           email: emailController.text, password: passwordController.text);
+  //     }
+  //     // This user is either a legit user thats logged in or a logged out dummy user
+  //     if (user.isLoggedIn) {
+  //       //Update the database
+  //       //update the state
+  //       Navigator.of(context)
+  //           .push(MaterialPageRoute(builder: (context) => HomeScreen()));
+  //     } else {
+  //       print("bummer");
+  //     }
+  //   } catch (e) {
+  //     print('CATCH $e');
+  //   }
+  //   // ScaffoldMessenger.of(context).hideCurrentSnackBar();
+  // }
+
+  // _onLoginWithGoogle(context) async {
+  //   ScaffoldMessenger.of(context)
+  //       .showSnackBar(SnackBar(content: Text("Creating User...")));
+  //   try {
+  //     print('authservice ${_authService.toString()}');
+  //     final AppUser user = await _authService.signInWithGoogle();
+  //     print(user);
+  //     if (user.isLoggedIn) {
+  //       print('Was the Auth Id properly translated to a user.id ${user.id}');
+  //       loginUser(user.id, user);
+  //       Navigator.of(context)
+  //           .push(MaterialPageRoute(builder: (context) => HomeScreen()));
+  //     } else {
+  //       print("bummer");
+  //     }
+  //   } catch (e) {
+  //     print('CATCH');
+  //     print(e);
+  //   }
+  // }
 }
