@@ -19,11 +19,9 @@ class LogInUser {
 }
 
 class LogOutUser {
-  final AppUser user;
-
-  LogOutUser(this.user);
+  LogOutUser();
   @override
-  String toString() => "LogOutUser(user: $user)";
+  String toString() => "LogOutUser()";
 }
 
 class UpdateDisplayName {

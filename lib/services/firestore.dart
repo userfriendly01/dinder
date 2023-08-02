@@ -40,10 +40,10 @@ class FirestoreService {
     return snapshots.map((DocumentSnapshot snapshot) {
       final data = snapshot.data();
       if (data != null && id == snapshot.id) {
+        print("FAITH *** $data");
         final formattedData = data as Map<String, dynamic>;
         formattedData['id'] = id;
         formattedData['isLoggedIn'] = true;
-        print("FAITH $data");
         return AppUser.fromJson(data);
       } else {
         print("The user was either null or $id didnt match ${snapshot.id}");
@@ -66,9 +66,18 @@ class FirestoreService {
   }
 
   Future<void> createUser(String id, AppUser user) async {
-    final String path = ApiPath.userById(id);
-    final CollectionReference collection = _firebaseFirestore.collection(path);
+    final String path = ApiPath.allUsers;
+    try {
+      final CollectionReference collection =
+          _firebaseFirestore.collection(path);
 
-    await collection.add(user.toJson());
+      Map dataUser = user.toJson();
+      dataUser.remove('id');
+      dataUser.remove('isLoggedIn');
+
+      await collection.doc(id).set(dataUser);
+    } catch (e) {
+      print("PATH ERROR $e");
+    }
   }
 }

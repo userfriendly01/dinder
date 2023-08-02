@@ -1,15 +1,10 @@
-import 'dart:async';
-
 import 'package:dinder/actions/app_user_actions.dart';
-import 'package:dinder/main.dart';
 import 'package:dinder/models/app_state.dart';
-import 'package:dinder/screens/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
 import 'package:redux/redux.dart';
 import '../services/auth.dart';
 import '../models/app_user_state.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import '../services/firestore.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -27,9 +22,12 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return StoreConnector<AppState, _ViewModel>(
       onWillChange: (previousViewModel, newViewModel) {
-        if (previousViewModel?.isLoggedIn != newViewModel.isLoggedIn &&
-            newViewModel.isLoggedIn) {
-          Navigator.pushNamed(context, '/home');
+        if (newViewModel.isLoggedIn) {
+          if (previousViewModel?.isLoggedIn != newViewModel.isLoggedIn) {
+            Navigator.pushNamed(context, '/home');
+          }
+        } else {
+          Navigator.pushNamed(context, '/login');
         }
       },
       converter: (Store<AppState> store) => _ViewModel.fromStore(store),
@@ -105,17 +103,15 @@ class _ViewModel {
   });
 
   static fromStore(Store<AppState> store) {
-    print("FAITH CURRENT USER ${_authService.currentUser}");
-    print("FAITH CURRENT STATE ${store.state}");
-
     void logInUser(String id, AppUser loggedInUser) async {
       final AppUser? user = await _firestoreService.getUser(id).first;
-      print("FAITH $user");
       if (user == null) {
         _firestoreService.createUser(id, loggedInUser);
       } else {
         loggedInUser = loggedInUser.copyWith(
-            friends: user.friends, dismissed: user.dismissed);
+            displayName: user.displayName,
+            friends: user.friends,
+            dismissed: user.dismissed);
       }
       store.dispatch(LogInUser(loggedInUser));
     }
@@ -139,7 +135,7 @@ class _ViewModel {
             if (isUserValid) {
               logInUser(user.id, user);
             } else {
-              print("bummer");
+              print("User was not valid");
             }
           } catch (e) {
             print('CATCH $e');
@@ -161,52 +157,4 @@ class _ViewModel {
           }
         });
   }
-
-  // _onSubmitEmailPassword(context, String loginType) async {
-  //   ScaffoldMessenger.of(context)
-  //       .showSnackBar(SnackBar(content: Text("Creating User...")));
-  //   try {
-  //     AppUser? user;
-  //     if (loginType == "Register") {
-  //       user = await _authService.createUserWithEmailAndPassword(
-  //           email: emailController.text, password: passwordController.text);
-  //     } else {
-  //       user = await _authService.signInWithEmailAndPassword(
-  //           email: emailController.text, password: passwordController.text);
-  //     }
-  //     // This user is either a legit user thats logged in or a logged out dummy user
-  //     if (user.isLoggedIn) {
-  //       //Update the database
-  //       //update the state
-  //       Navigator.of(context)
-  //           .push(MaterialPageRoute(builder: (context) => HomeScreen()));
-  //     } else {
-  //       print("bummer");
-  //     }
-  //   } catch (e) {
-  //     print('CATCH $e');
-  //   }
-  //   // ScaffoldMessenger.of(context).hideCurrentSnackBar();
-  // }
-
-  // _onLoginWithGoogle(context) async {
-  //   ScaffoldMessenger.of(context)
-  //       .showSnackBar(SnackBar(content: Text("Creating User...")));
-  //   try {
-  //     print('authservice ${_authService.toString()}');
-  //     final AppUser user = await _authService.signInWithGoogle();
-  //     print(user);
-  //     if (user.isLoggedIn) {
-  //       print('Was the Auth Id properly translated to a user.id ${user.id}');
-  //       loginUser(user.id, user);
-  //       Navigator.of(context)
-  //           .push(MaterialPageRoute(builder: (context) => HomeScreen()));
-  //     } else {
-  //       print("bummer");
-  //     }
-  //   } catch (e) {
-  //     print('CATCH');
-  //     print(e);
-  //   }
-  // }
 }

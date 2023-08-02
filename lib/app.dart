@@ -37,6 +37,7 @@ class DinderApp extends StatelessWidget {
                   useMaterial3: true),
               routes: {
                 '/': (context) => LoginScreen(),
+                '/login': (context) => LoginScreen(),
                 '/home': (context) => HomeScreen(),
                 '/friends': (context) => FriendsScreen(),
                 '/myprofile': (context) => MyProfileScreen(),

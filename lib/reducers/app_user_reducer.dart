@@ -28,7 +28,7 @@ AppUser logOutUserReducer(
   AppUser state,
   LogOutUser action,
 ) {
-  return state.copyWith(isLoggedIn: false);
+  return AppUser.initial(false);
 }
 
 AppUser updateDisplayNameReducer(
