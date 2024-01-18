@@ -4,11 +4,18 @@ import 'package:dinder/shared/bottom_menu.dart';
 import 'package:flutter_redux/flutter_redux.dart';
 import 'package:redux/redux.dart';
 import 'package:dinder/models/app_state.dart';
-
+import '../services/firestore.dart';
 import '../services/auth.dart';
 
-class MyProfileScreen extends StatelessWidget {
+class MyProfileScreen extends StatefulWidget {
   const MyProfileScreen({super.key});
+
+  @override
+  State<MyProfileScreen> createState() => _MyProfileScreenState();
+}
+
+class _MyProfileScreenState extends State<MyProfileScreen> {
+  final TextEditingController displayNameController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -17,11 +24,23 @@ class MyProfileScreen extends StatelessWidget {
       builder: (BuildContext context, _ViewModel vm) {
         return Scaffold(
           body: Container(
-              padding: EdgeInsets.all(30),
-              child: ElevatedButton(
-                onPressed: vm.logOut,
-                child: const Text("Log Out"),
-              )),
+              padding: const EdgeInsets.all(30),
+              child: Column(
+                children: [
+                  Text("${vm.displayName} Profile!"),
+                  TextField(
+                    controller: displayNameController,
+                    decoration: const InputDecoration( hintText: "Display Name"),
+                  ),
+                  const Padding(padding: EdgeInsets.all(30)),
+                  ElevatedButton(onPressed: () {
+                    vm.updateDisplayName(displayNameController.text);
+                    }, child: const Text("Save")),
+                  const Padding(padding: EdgeInsets.all(30)),
+                  ElevatedButton(onPressed: vm.logOut, child: const Text("Log Out"))
+                ],
+              ),
+              ),
           bottomNavigationBar: BottomMenu(currentIndex: 2),
         );
       },
@@ -31,16 +50,29 @@ class MyProfileScreen extends StatelessWidget {
 
 class _ViewModel {
   final void Function() logOut;
+  final void Function(String displayName) updateDisplayName;
+  final String? displayName;
   static AuthService _authService = AuthService.instance;
 
-  const _ViewModel({required this.logOut});
+  const _ViewModel({
+    required this.logOut,
+    required this.updateDisplayName,
+    required this.displayName
+  });
 
   static fromStore(Store<AppState> store) {
+    final FirestoreService _firestoreService = FirestoreService.instance;
+
     return _ViewModel(
+      displayName: store.state.userState.displayName != "" ? "${store.state.userState.displayName}'s" : "My",
       logOut: () {
         _authService.signOut();
         store.dispatch(LogOutUser());
       },
+      updateDisplayName: (String displayName) async {
+        await _firestoreService.updateDisplayName(store.state.userState.id, displayName);
+        store.dispatch(UpdateDisplayName(displayName));
+      }
     );
   }
 }

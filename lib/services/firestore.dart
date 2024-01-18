@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:dinder/actions/app_user_actions.dart';
 import 'package:dinder/models/app_user_state.dart';
 import '../shared/ApiPath.dart';
 
@@ -49,6 +50,20 @@ class FirestoreService {
         print("The user was either null or $id didnt match ${snapshot.id}");
       }
     });
+  }
+
+  Future<void> updateDisplayName(String id, String displayName) async {
+    try {
+      final String path = ApiPath.userById(id);
+      final DocumentReference document = _firebaseFirestore.doc(path);
+
+      await document.set(
+        {'displayName': displayName},
+        SetOptions(merge: true),
+      );
+    } catch (e) {
+      print('User update displayName failed $e');
+    }
   }
 
   Future<void> updateUserFriends(String id, List<String> friends) async {

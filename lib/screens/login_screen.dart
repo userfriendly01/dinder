@@ -33,7 +33,7 @@ class _LoginScreenState extends State<LoginScreen> {
       converter: (Store<AppState> store) => _ViewModel.fromStore(store),
       builder: (BuildContext context, _ViewModel vm) {
         return Scaffold(
-            body: Padding(
+          body: Padding(
           padding: const EdgeInsets.all(48.0),
           child: Column(children: [
             const Text("LOGIN"),
