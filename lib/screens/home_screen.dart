@@ -15,13 +15,14 @@ class HomeScreen extends StatelessWidget {
     return StoreConnector<AppState, _ViewModel>(
       converter: (Store<AppState> store) => _ViewModel.fromStore(store),
       builder: (BuildContext context, _ViewModel vm) {
-        if (vm.displayName == "Navigate me to the friends page!") {
-          //Kaleigh Note 18 - This is what we need to make sure we can navigate in conditionals.. it waits for other things to finish painting so we dont
-          //get the error that other things are already being rendered
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            vm.navigateToFriendsPage(context);
-          });
-        }
+        // * Example of WidgetsBinding
+        // if (vm.displayName == "Navigate me to the friends page!") {
+        //   //Kaleigh Note 18 - This is what we need to make sure we can navigate in conditionals.. it waits for other things to finish painting so we dont
+        //   //get the error that other things are already being rendered
+        //   WidgetsBinding.instance.addPostFrameCallback((_) {
+        //     vm.navigateToFriendsPage(context);
+        //   });
+        // }
         ;
         return Scaffold(
           bottomNavigationBar: BottomMenu(currentIndex: 0),
@@ -29,19 +30,13 @@ class HomeScreen extends StatelessWidget {
             icon: Icon(Icons.fastfood_outlined),
             onPressed: () {
               // print();
+              vm.navigateToFreshMeatPage(context);
             },
           ),
           body: Column(
             children: [
               Text("HOME!"),
               Text('yo ${vm.displayName}'),
-              IconButton(
-                  tooltip: "Press me to go to the friends page",
-                  onPressed: () {
-                    //Kaleigh Note 17 - adding a state change here to show you Note 18!
-                    vm.updateDisplayName("Navigate me to the friends page!");
-                  },
-                  icon: Icon(Icons.cookie))
             ],
           ),
         );
@@ -55,6 +50,7 @@ class _ViewModel {
   final void Function(Meat newMeat) createMeat;
   final void Function(String newName) updateDisplayName;
   final void Function(BuildContext context) navigateToFriendsPage;
+  final void Function(BuildContext context) navigateToFreshMeatPage;
 
   //dont know if we'll use this and add a reducer function or just Meat()
   //May want to read into forms in flutter a bit
@@ -64,6 +60,7 @@ class _ViewModel {
     required this.createMeat,
     required this.updateDisplayName,
     required this.navigateToFriendsPage,
+    required this.navigateToFreshMeatPage,
   });
 
   static fromStore(Store<AppState> store) {
@@ -74,6 +71,10 @@ class _ViewModel {
             store.dispatch(UpdateDisplayName(newName)),
         navigateToFriendsPage: (BuildContext context) {
           Navigator.pushNamed(context, '/friends');
-        });
+        },
+        navigateToFreshMeatPage: (BuildContext context) {
+          Navigator.pushNamed(context, '/freshMeat');
+        }
+    );
   }
 }

@@ -1,4 +1,5 @@
 import 'package:dinder/models/app_state.dart';
+import 'package:dinder/screens/fresh_meat_screen.dart';
 import 'package:dinder/screens/login_screen.dart';
 import 'package:dinder/services/analytics.dart';
 // import 'package:firebase_analytics/observer.dart';
@@ -41,6 +42,7 @@ class DinderApp extends StatelessWidget {
                 '/home': (context) => HomeScreen(),
                 '/friends': (context) => FriendsScreen(),
                 '/myprofile': (context) => MyProfileScreen(),
+                '/freshMeat': (context) => FreshMeatScreen(),
               },
               initialRoute: '/');
         },
