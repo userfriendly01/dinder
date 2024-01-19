@@ -2,6 +2,7 @@ import 'package:dinder/actions/app_user_actions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
 import 'package:redux/redux.dart';
+import 'package:dinder/shared/app_bar.dart';
 import '../shared/bottom_menu.dart';
 import '../actions/meat_actions.dart';
 import '../models/app_state.dart';
@@ -25,6 +26,7 @@ class HomeScreen extends StatelessWidget {
         // }
         ;
         return Scaffold(
+          appBar: const DinderAppBar(),
           bottomNavigationBar: BottomMenu(currentIndex: 0),
           floatingActionButton: IconButton(
             icon: Icon(Icons.fastfood_outlined),
@@ -35,7 +37,7 @@ class HomeScreen extends StatelessWidget {
           ),
           body: Column(
             children: [
-              Text("HOME!"),
+              const Text("HOME!"),
               Text('yo ${vm.displayName}'),
             ],
           ),

@@ -2,6 +2,7 @@ import 'package:dinder/actions/friends_list_actions.dart';
 import 'package:dinder/models/app_state.dart';
 import 'package:flutter/material.dart';
 import 'package:dinder/shared/bottom_menu.dart';
+import 'package:dinder/shared/app_bar.dart';
 import 'package:flutter_redux/flutter_redux.dart';
 import 'package:redux/redux.dart';
 import '../actions/app_user_actions.dart';
@@ -22,6 +23,7 @@ class FriendsScreen extends StatelessWidget {
       converter: (Store<AppState> store) => _ViewModel.fromStore(store),
       builder: (BuildContext context, _ViewModel vm) {
         return Scaffold(
+            appBar: const DinderAppBar(),
             bottomNavigationBar: BottomMenu(currentIndex: 1),
             body: ListView.separated(
                 primary: false,
@@ -48,7 +50,8 @@ class FriendsScreen extends StatelessWidget {
                             icon: const Icon(Icons.add),
                           ),
                   );
-                }));
+                })
+        );
       },
     );
   }

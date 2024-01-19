@@ -5,6 +5,7 @@ import 'package:flutter_redux/flutter_redux.dart';
 import 'package:redux/redux.dart';
 import 'package:dinder/models/app_state.dart';
 import '../actions/friends_list_actions.dart';
+import 'package:dinder/shared/app_bar.dart';
 import '../models/app_user_state.dart';
 import '../services/firestore.dart';
 import '../services/auth.dart';
@@ -23,6 +24,7 @@ class FreshMeatScreen extends StatefulWidget {
 class _FreshMeatScreenState extends State<FreshMeatScreen> {
   final TextEditingController zipcodeController = TextEditingController();
   List<String> _selectedFriendsList = [];
+  String _errorMessage = "";
 
   @override
   Widget build(BuildContext context) {
@@ -35,22 +37,20 @@ class _FreshMeatScreenState extends State<FreshMeatScreen> {
       converter: (Store<AppState> store) => _ViewModel.fromStore(store),
       builder: (BuildContext context, _ViewModel vm) {
         return Scaffold(
+          appBar: const DinderAppBar(),
           body: Container(
               padding: const EdgeInsets.all(30),
               child: Column(
                 children: [
-                  const Text("Create A New Meat!"),
+                  const Text("Create A New Meat!", style: TextStyle( fontWeight: FontWeight.bold, fontSize: 22),),
+                  const Padding(padding: EdgeInsets.all(30)),
+                  const Text("Where do you want to meat?"),
                   TextField(
                     controller: zipcodeController,
                     decoration: const InputDecoration( hintText: "Zipcode"),
                   ),
                   const Padding(padding: EdgeInsets.all(30)),
-                  ElevatedButton(
-                    onPressed: () {
-                      print(vm.friendsList);
-                    },
-                    child: const Text("Log Out")
-                  ),
+                  Text(vm.friendsList.isEmpty ? "Oh no! You need some friends" : "Select your friends"),
                   ListView.separated(
                     primary: false,
                     shrinkWrap: true,
@@ -63,9 +63,8 @@ class _FreshMeatScreenState extends State<FreshMeatScreen> {
                       return ListTile(
                         title: Text("${friend.displayName}"),
                         selected: _selectedFriendsList.contains(friend.id),
-                        selectedTileColor: Color.fromARGB(255, 181, 133, 204),
+                        selectedTileColor: const Color.fromARGB(255, 196, 169, 208),
                         onTap: () {
-                          print("Tapped ${friend.displayName}");
                           List<String> updatedList = _selectedFriendsList;
                           if (_selectedFriendsList.contains(friend.id)) {
                             print("REMOVE ${friend.id}");
@@ -80,8 +79,41 @@ class _FreshMeatScreenState extends State<FreshMeatScreen> {
                         },
                       );
                     },
-                  )
-
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(10),
+                    child: Text(_errorMessage, style: const TextStyle(color: Colors.red),),
+                  ),
+                  // If user has no friends we render a button that navigates to the friend page
+                  vm.friendsList.isNotEmpty ? ElevatedButton(
+                    onPressed: () {
+                      bool isZipValid = RegExp(r"^\d{5}(-\d{4})?$", caseSensitive: false).hasMatch(zipcodeController.text);
+                      if (_selectedFriendsList.isEmpty) {
+                        setState(() {
+                          _errorMessage = "Oops, select some friends.";
+                        });
+                      } else if (zipcodeController.text == "") {
+                        setState(() {
+                          _errorMessage = "Oh no!  Enter a zipcode.";
+                        });
+                      } else if (!isZipValid) {
+                        setState(() {
+                          _errorMessage = "Hmmmm... I don't think that zipcode is real...";
+                        });
+                      } else {
+                        setState(() {
+                          _errorMessage = "";
+                        });
+                      }
+                      // Todo: navigate to the next screen
+                    },
+                    child: const Text("Create Meat-Up")
+                  ) : ElevatedButton(
+                    onPressed: () {
+                    Navigator.pushNamed(context, "/friends");
+                    }, 
+                    child: const Text("Find some Friends")
+                  ),
                 ],
               ),
               ),
@@ -96,7 +128,6 @@ class _ViewModel {
   final String? displayName;
   final void Function() loadFriends;
   final List<AppUser> friendsList;
-  static AuthService _authService = AuthService.instance;
 
   const _ViewModel({
     required this.displayName,
@@ -105,7 +136,7 @@ class _ViewModel {
   });
 
   static fromStore(Store<AppState> store) {
-    final FirestoreService _firestoreService = FirestoreService.instance;
+    final FirestoreService firestoreService = FirestoreService.instance;
 
     List<AppUser> formatFriends() {
       return store.state.friendsListState.friends
@@ -117,7 +148,7 @@ class _ViewModel {
       displayName: store.state.userState.displayName != "" ? "${store.state.userState.displayName}'s" : "My",
       friendsList: formatFriends(),
       loadFriends: () async {
-        final possibleFriends = await _firestoreService.getAllUsers().first;
+        final possibleFriends = await firestoreService.getAllUsers().first;
         print(possibleFriends);
         print('yay possible friends ^');
         store.dispatch(LoadFriendsList(possibleFriends));

@@ -36,46 +36,60 @@ class _LoginScreenState extends State<LoginScreen> {
           body: Padding(
           padding: const EdgeInsets.all(48.0),
           child: Column(children: [
-            const Text("LOGIN"),
+            const Padding(
+              padding: EdgeInsets.all(35),
+              child: Text("Dinder", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 38, color: Colors.deepPurple),),),
+            const Text("Login", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),),
             TextField(
               controller: emailController,
-              decoration: InputDecoration(hintText: "Email"),
+              decoration: const InputDecoration(hintText: "Email"),
             ),
             TextField(
               controller: passwordController,
               obscureText: true,
-              decoration: InputDecoration(hintText: "Password"),
+              decoration: const InputDecoration(hintText: "Password"),
             ),
+            const Padding(padding: EdgeInsets.only(top: 50)),
             Padding(
-              padding: const EdgeInsets.all(8.0),
+              padding: const EdgeInsets.only(bottom: 20.0),
               child: ElevatedButton(
                   onPressed: () {
                     vm.onSubmitEmailPassword(emailController.text,
                         passwordController.text, "Register");
                   },
-                  child: Text('Register')),
+                  style: ElevatedButton.styleFrom(
+                    minimumSize: const Size(300, 50)
+                  ),
+                  child: const Text('Sign up'),
+                ),
             ),
             Padding(
-              padding: const EdgeInsets.all(8.0),
+              padding: const EdgeInsets.only(bottom: 20.0),
               child: ElevatedButton(
                 onPressed: () {
                   ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text("Creating User...")));
+                      const SnackBar(content: Text("Logging in...")));
                   vm.onSubmitEmailPassword(
                       emailController.text, passwordController.text, "Login");
                 },
-                child: Text('Login with email and password'),
+                style: ElevatedButton.styleFrom(
+                    minimumSize: const Size(300, 50)
+                ),
+                child: const Text('Login with email and password'),
               ),
             ),
             Padding(
-              padding: const EdgeInsets.all(8.0),
+              padding: const EdgeInsets.only(bottom: 20.0),
               child: ElevatedButton(
                 onPressed: () {
                   ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text("Creating User...")));
+                      const SnackBar(content: Text("Logging in...")));
                   vm.onSubmitGoogle();
                 },
-                child: Text('Login with Google'),
+                style: ElevatedButton.styleFrom(
+                    minimumSize: const Size(300, 50)
+                  ),
+                child: const Text('Login with Google'),
               ),
             )
           ]),

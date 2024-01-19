@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:dinder/shared/bottom_menu.dart';
 import 'package:flutter_redux/flutter_redux.dart';
 import 'package:redux/redux.dart';
+import 'package:dinder/shared/app_bar.dart';
 import 'package:dinder/models/app_state.dart';
 import '../services/firestore.dart';
 import '../services/auth.dart';
@@ -23,11 +24,12 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
       converter: (Store<AppState> store) => _ViewModel.fromStore(store),
       builder: (BuildContext context, _ViewModel vm) {
         return Scaffold(
+          appBar: const DinderAppBar(),
           body: Container(
               padding: const EdgeInsets.all(30),
               child: Column(
                 children: [
-                  Text("${vm.displayName} Profile!"),
+                  Text("${vm.displayName} Profile!", style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),),
                   TextField(
                     controller: displayNameController,
                     decoration: const InputDecoration( hintText: "Display Name"),
@@ -36,8 +38,6 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                   ElevatedButton(onPressed: () {
                     vm.updateDisplayName(displayNameController.text);
                     }, child: const Text("Save")),
-                  const Padding(padding: EdgeInsets.all(30)),
-                  ElevatedButton(onPressed: vm.logOut, child: const Text("Log Out"))
                 ],
               ),
               ),
