@@ -10,13 +10,26 @@ class Restaurants {
   factory Restaurants.initial() {
     return Restaurants(restaurants: []);
   }
+
+  factory Restaurants.fromJson(Map<String, dynamic> json) {
+    // final restaurantList = array.map((item) => Restaurant.fromJson(item)).toList();
+    // return Restaurants(restaurants: restaurantList);
+    return switch (json) {
+      {
+        'restaurants': List<dynamic> restaurants
+      } => 
+        Restaurants(restaurants: restaurants.map((item) => Restaurant.fromJson(item)).toList()),
+        _ => throw const FormatException('Failed to load restaurants')
+    };
+  }
+
   Restaurants copyWith({List<Restaurant>? restaurants}) {
     return Restaurants(restaurants: restaurants ?? this.restaurants);
   }
 }
 
 class Restaurant {
-  final String id;
+  final int id;
   final String restaurantName;
   final String? address;
   final String? cityName;
@@ -37,7 +50,7 @@ class Restaurant {
 
   factory Restaurant.initial() {
     return Restaurant(
-        id: "",
+        id: 0,
         restaurantName: "",
         address: "",
         cityName: "",
@@ -48,7 +61,7 @@ class Restaurant {
   }
 
   Restaurant copyWith(
-      {String? id,
+      {int? id,
       String? restaurantName,
       String? address,
       String? cityName,
@@ -65,6 +78,34 @@ class Restaurant {
         hoursInterval: hoursInterval ?? this.hoursInterval,
         website: website ?? this.website,
         phone: phone ?? this.phone);
+  }
+
+  factory Restaurant.fromJson(Map<String, dynamic> json) {
+    print("json");
+    print(json);
+    return switch (json) {
+      {
+        'id': int id,
+        'restaurantName': String restaurantName,
+        'address': String address,
+        'cityName': String cityName,
+        'cuisineType': String cuisineType,
+        'hoursInterval': String hoursInterval,
+        'website': String website,
+        'phone': String phone
+      } => 
+        Restaurant(
+          id: id,
+          restaurantName: restaurantName,
+          address: address,
+          cityName: cityName,
+          cuisineType: cuisineType,
+          hoursInterval: hoursInterval,
+          website: website,
+          phone: phone
+        ),
+        _ => throw const FormatException('Failed to load Restaurant')
+    };
   }
 
   @override

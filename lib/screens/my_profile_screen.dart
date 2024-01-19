@@ -52,7 +52,7 @@ class _ViewModel {
   final void Function() logOut;
   final void Function(String displayName) updateDisplayName;
   final String? displayName;
-  static AuthService _authService = AuthService.instance;
+  static final AuthService _authService = AuthService.instance;
 
   const _ViewModel({
     required this.logOut,

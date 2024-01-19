@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import 'package:dinder/actions/app_user_actions.dart';
+import 'package:dinder/models/restaurant_state.dart';
 import 'package:flutter/material.dart';
 import 'package:dinder/shared/bottom_menu.dart';
 import 'package:flutter_redux/flutter_redux.dart';
@@ -9,11 +12,19 @@ import 'package:dinder/shared/app_bar.dart';
 import '../models/app_user_state.dart';
 import '../services/firestore.dart';
 import '../services/auth.dart';
+import 'package:http/http.dart' as http;
 
 // Multi select list of friends to make a meet
 // Field to collect zipcode
 // create meat-up button - which does the search and brings you to another screen
 
+
+Future<http.Response> fetchRestaurants() {
+  return http.get(Uri.parse('https://restaurants-near-me-usa.p.rapidapi.com/restaurants/location/zipcode/03102/0'), headers: {
+    'X-RapidAPI-Key': '17a02516f1mshb1bab854052a656p16a8cajsnedeb620fc3f7',
+    'X-RapidAPI-Host': 'restaurants-near-me-usa.p.rapidapi.com'
+  });
+}
 class FreshMeatScreen extends StatefulWidget {
   const FreshMeatScreen({super.key});
 
@@ -86,7 +97,7 @@ class _FreshMeatScreenState extends State<FreshMeatScreen> {
                   ),
                   // If user has no friends we render a button that navigates to the friend page
                   vm.friendsList.isNotEmpty ? ElevatedButton(
-                    onPressed: () {
+                    onPressed: () async {
                       bool isZipValid = RegExp(r"^\d{5}(-\d{4})?$", caseSensitive: false).hasMatch(zipcodeController.text);
                       if (_selectedFriendsList.isEmpty) {
                         setState(() {
@@ -104,8 +115,10 @@ class _FreshMeatScreenState extends State<FreshMeatScreen> {
                         setState(() {
                           _errorMessage = "";
                         });
-                      }
+                        final response = await fetchRestaurants();
+                        final resty = Restaurants.fromJson(jsonDecode(response.body));
                       // Todo: navigate to the next screen
+                      }
                     },
                     child: const Text("Create Meat-Up")
                   ) : ElevatedButton(

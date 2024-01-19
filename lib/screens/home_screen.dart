@@ -29,7 +29,7 @@ class HomeScreen extends StatelessWidget {
           appBar: const DinderAppBar(),
           bottomNavigationBar: BottomMenu(currentIndex: 0),
           floatingActionButton: IconButton(
-            icon: Icon(Icons.fastfood_outlined),
+            icon: const Icon(Icons.fastfood_outlined),
             onPressed: () {
               // print();
               vm.navigateToFreshMeatPage(context);
