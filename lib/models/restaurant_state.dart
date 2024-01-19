@@ -15,11 +15,10 @@ class Restaurants {
     // final restaurantList = array.map((item) => Restaurant.fromJson(item)).toList();
     // return Restaurants(restaurants: restaurantList);
     return switch (json) {
-      {
-        'restaurants': List<dynamic> restaurants
-      } => 
-        Restaurants(restaurants: restaurants.map((item) => Restaurant.fromJson(item)).toList()),
-        _ => throw const FormatException('Failed to load restaurants')
+      {'restaurants': List<dynamic> restaurants} => Restaurants(
+          restaurants:
+              restaurants.map((item) => Restaurant.fromJson(item)).toList()),
+      _ => throw const FormatException('Failed to load restaurants')
     };
   }
 
@@ -93,18 +92,30 @@ class Restaurant {
         'hoursInterval': String hoursInterval,
         'website': String website,
         'phone': String phone
-      } => 
+      } =>
         Restaurant(
-          id: id,
-          restaurantName: restaurantName,
-          address: address,
-          cityName: cityName,
-          cuisineType: cuisineType,
-          hoursInterval: hoursInterval,
-          website: website,
-          phone: phone
-        ),
-        _ => throw const FormatException('Failed to load Restaurant')
+            id: id,
+            restaurantName: restaurantName,
+            address: address,
+            cityName: cityName,
+            cuisineType: cuisineType,
+            hoursInterval: hoursInterval,
+            website: website,
+            phone: phone),
+      _ => throw const FormatException('Failed to load Restaurant')
+    };
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'restaurantName': restaurantName,
+      'address': address,
+      'cityName': cityName,
+      'cuisineType': cuisineType,
+      'hoursInterval': hoursInterval,
+      'website': website,
+      'phone': phone
     };
   }
 

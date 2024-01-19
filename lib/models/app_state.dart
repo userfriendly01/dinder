@@ -9,7 +9,7 @@ import 'app_user_state.dart';
 class AppState {
   final AppUser userState;
   final FriendsList friendsListState;
-  final LocationOptions locationsState;
+  // final LocationOptions locationsState;
   final Meat meatState;
   final Restaurants restaurantsState;
   final DismissedRestaurants dismissedState;
@@ -17,7 +17,7 @@ class AppState {
   const AppState(
       {required this.userState,
       required this.friendsListState,
-      required this.locationsState,
+      // required this.locationsState,
       required this.meatState,
       required this.restaurantsState,
       required this.dismissedState});
@@ -26,7 +26,7 @@ class AppState {
     return AppState(
         userState: AppUser.initial(isLoggedIn),
         friendsListState: FriendsList.initial(),
-        locationsState: LocationOptions.initial(),
+        // locationsState: LocationOptions.initial(),
         meatState: Meat.initial(),
         restaurantsState: Restaurants.initial(),
         dismissedState: DismissedRestaurants.initial());
@@ -34,6 +34,6 @@ class AppState {
 
   @override
   String toString() {
-    return "AppState(userState: $userState, friendsListState: $friendsListState), locationsState: $locationsState, meatState: $meatState, restaurantsState: $restaurantsState, dismissedState: $dismissedState";
+    return "AppState(userState: $userState, friendsListState: $friendsListState), meatState: $meatState, restaurantsState: $restaurantsState, dismissedState: $dismissedState";
   }
 }

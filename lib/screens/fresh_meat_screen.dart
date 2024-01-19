@@ -9,7 +9,9 @@ import 'package:redux/redux.dart';
 import 'package:dinder/models/app_state.dart';
 import '../actions/friends_list_actions.dart';
 import 'package:dinder/shared/app_bar.dart';
+import '../actions/meat_actions.dart';
 import '../models/app_user_state.dart';
+import '../models/meat_state.dart';
 import '../services/firestore.dart';
 import '../services/auth.dart';
 import 'package:http/http.dart' as http;
@@ -18,13 +20,16 @@ import 'package:http/http.dart' as http;
 // Field to collect zipcode
 // create meat-up button - which does the search and brings you to another screen
 
-
 Future<http.Response> fetchRestaurants() {
-  return http.get(Uri.parse('https://restaurants-near-me-usa.p.rapidapi.com/restaurants/location/zipcode/03102/0'), headers: {
-    'X-RapidAPI-Key': '17a02516f1mshb1bab854052a656p16a8cajsnedeb620fc3f7',
-    'X-RapidAPI-Host': 'restaurants-near-me-usa.p.rapidapi.com'
-  });
+  return http.get(
+      Uri.parse(
+          'https://restaurants-near-me-usa.p.rapidapi.com/restaurants/location/zipcode/03102/0'),
+      headers: {
+        'X-RapidAPI-Key': '17a02516f1mshb1bab854052a656p16a8cajsnedeb620fc3f7',
+        'X-RapidAPI-Host': 'restaurants-near-me-usa.p.rapidapi.com'
+      });
 }
+
 class FreshMeatScreen extends StatefulWidget {
   const FreshMeatScreen({super.key});
 
@@ -50,86 +55,101 @@ class _FreshMeatScreenState extends State<FreshMeatScreen> {
         return Scaffold(
           appBar: const DinderAppBar(),
           body: Container(
-              padding: const EdgeInsets.all(30),
-              child: Column(
-                children: [
-                  const Text("Create A New Meat!", style: TextStyle( fontWeight: FontWeight.bold, fontSize: 22),),
-                  const Padding(padding: EdgeInsets.all(30)),
-                  const Text("Where do you want to meat?"),
-                  TextField(
-                    controller: zipcodeController,
-                    decoration: const InputDecoration( hintText: "Zipcode"),
+            padding: const EdgeInsets.all(30),
+            child: Column(
+              children: [
+                const Text(
+                  "Create A New Meat!",
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
+                ),
+                const Padding(padding: EdgeInsets.all(30)),
+                const Text("Where do you want to meat?"),
+                TextField(
+                  controller: zipcodeController,
+                  decoration: const InputDecoration(hintText: "Zipcode"),
+                ),
+                const Padding(padding: EdgeInsets.all(30)),
+                Text(vm.friendsList.isEmpty
+                    ? "Oh no! You need some friends"
+                    : "Select your friends"),
+                ListView.separated(
+                  primary: false,
+                  shrinkWrap: true,
+                  itemCount: vm.friendsList.length,
+                  separatorBuilder: (BuildContext context, int index) {
+                    return const Divider(color: Colors.grey);
+                  },
+                  itemBuilder: (BuildContext context, int index) {
+                    final friend = vm.friendsList[index];
+                    return ListTile(
+                      title: Text("${friend.displayName}"),
+                      selected: _selectedFriendsList.contains(friend.id),
+                      selectedTileColor:
+                          const Color.fromARGB(255, 196, 169, 208),
+                      onTap: () {
+                        List<String> updatedList = _selectedFriendsList;
+                        if (_selectedFriendsList.contains(friend.id)) {
+                          print("REMOVE ${friend.id}");
+                          updatedList.remove(friend.id);
+                        } else {
+                          print("ADD ${friend.id}");
+                          updatedList.add(friend.id);
+                        }
+                        setState(() {
+                          _selectedFriendsList = updatedList;
+                        });
+                      },
+                    );
+                  },
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(10),
+                  child: Text(
+                    _errorMessage,
+                    style: const TextStyle(color: Colors.red),
                   ),
-                  const Padding(padding: EdgeInsets.all(30)),
-                  Text(vm.friendsList.isEmpty ? "Oh no! You need some friends" : "Select your friends"),
-                  ListView.separated(
-                    primary: false,
-                    shrinkWrap: true,
-                    itemCount: vm.friendsList.length,
-                    separatorBuilder: (BuildContext context, int index) {
-                      return const Divider(color: Colors.grey);
-                    },
-                    itemBuilder: (BuildContext context, int index) {
-                      final friend = vm.friendsList[index];
-                      return ListTile(
-                        title: Text("${friend.displayName}"),
-                        selected: _selectedFriendsList.contains(friend.id),
-                        selectedTileColor: const Color.fromARGB(255, 196, 169, 208),
-                        onTap: () {
-                          List<String> updatedList = _selectedFriendsList;
-                          if (_selectedFriendsList.contains(friend.id)) {
-                            print("REMOVE ${friend.id}");
-                            updatedList.remove(friend.id);
+                ),
+                // If user has no friends we render a button that navigates to the friend page
+                vm.friendsList.isNotEmpty
+                    ? ElevatedButton(
+                        onPressed: () async {
+                          bool isZipValid =
+                              RegExp(r"^\d{5}(-\d{4})?$", caseSensitive: false)
+                                  .hasMatch(zipcodeController.text);
+                          if (_selectedFriendsList.isEmpty) {
+                            setState(() {
+                              _errorMessage = "Oops, select some friends.";
+                            });
+                          } else if (zipcodeController.text == "") {
+                            setState(() {
+                              _errorMessage = "Oh no!  Enter a zipcode.";
+                            });
+                          } else if (!isZipValid) {
+                            setState(() {
+                              _errorMessage =
+                                  "Hmmmm... I don't think that zipcode is real...";
+                            });
                           } else {
-                            print("ADD ${friend.id}");
-                            updatedList.add(friend.id);
+                            setState(() {
+                              _errorMessage = "";
+                            });
+                            final response = await fetchRestaurants();
+                            final resty =
+                                Restaurants.fromJson(jsonDecode(response.body));
+                            vm.createMeat(_selectedFriendsList, resty, "03102");
+                            // FAITH AND KALEIGH - Add Meat ID to users & add self to Meat instance as participant
+                            // Todo: navigate to the next screen
                           }
-                          setState(() {
-                            _selectedFriendsList = updatedList;
-                          });
                         },
-                      );
-                    },
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(10),
-                    child: Text(_errorMessage, style: const TextStyle(color: Colors.red),),
-                  ),
-                  // If user has no friends we render a button that navigates to the friend page
-                  vm.friendsList.isNotEmpty ? ElevatedButton(
-                    onPressed: () async {
-                      bool isZipValid = RegExp(r"^\d{5}(-\d{4})?$", caseSensitive: false).hasMatch(zipcodeController.text);
-                      if (_selectedFriendsList.isEmpty) {
-                        setState(() {
-                          _errorMessage = "Oops, select some friends.";
-                        });
-                      } else if (zipcodeController.text == "") {
-                        setState(() {
-                          _errorMessage = "Oh no!  Enter a zipcode.";
-                        });
-                      } else if (!isZipValid) {
-                        setState(() {
-                          _errorMessage = "Hmmmm... I don't think that zipcode is real...";
-                        });
-                      } else {
-                        setState(() {
-                          _errorMessage = "";
-                        });
-                        final response = await fetchRestaurants();
-                        final resty = Restaurants.fromJson(jsonDecode(response.body));
-                      // Todo: navigate to the next screen
-                      }
-                    },
-                    child: const Text("Create Meat-Up")
-                  ) : ElevatedButton(
-                    onPressed: () {
-                    Navigator.pushNamed(context, "/friends");
-                    }, 
-                    child: const Text("Find some Friends")
-                  ),
-                ],
-              ),
-              ),
+                        child: const Text("Create Meat-Up"))
+                    : ElevatedButton(
+                        onPressed: () {
+                          Navigator.pushNamed(context, "/friends");
+                        },
+                        child: const Text("Find some Friends")),
+              ],
+            ),
+          ),
           bottomNavigationBar: BottomMenu(currentIndex: 2),
         );
       },
@@ -140,11 +160,13 @@ class _FreshMeatScreenState extends State<FreshMeatScreen> {
 class _ViewModel {
   final String? displayName;
   final void Function() loadFriends;
+  final void Function(List<String>, Restaurants, String) createMeat;
   final List<AppUser> friendsList;
 
   const _ViewModel({
     required this.displayName,
     required this.loadFriends,
+    required this.createMeat,
     required this.friendsList,
   });
 
@@ -153,19 +175,37 @@ class _ViewModel {
 
     List<AppUser> formatFriends() {
       return store.state.friendsListState.friends
-          .where((element) => store.state.userState.friends.contains(element.id))
+          .where(
+              (element) => store.state.userState.friends.contains(element.id))
           .toList();
     }
 
     return _ViewModel(
-      displayName: store.state.userState.displayName != "" ? "${store.state.userState.displayName}'s" : "My",
-      friendsList: formatFriends(),
-      loadFriends: () async {
-        final possibleFriends = await firestoreService.getAllUsers().first;
-        print(possibleFriends);
-        print('yay possible friends ^');
-        store.dispatch(LoadFriendsList(possibleFriends));
-      },
-    );
+        displayName: store.state.userState.displayName != ""
+            ? "${store.state.userState.displayName}'s"
+            : "My",
+        friendsList: formatFriends(),
+        loadFriends: () async {
+          final possibleFriends = await firestoreService.getAllUsers().first;
+          store.dispatch(LoadFriendsList(possibleFriends));
+        },
+        createMeat: (List<String> participants,
+            Restaurants availableRestaurants, String zipcode) async {
+          final instance = Meat(
+              id: "",
+              state: "",
+              matchedRestaurants: Restaurants.initial(),
+              cities: [],
+              availableRestaurants: availableRestaurants,
+              zipcode: zipcode,
+              participants: participants
+                  .map((p) => MeatParticipant(
+                      selectedRestaurants: Restaurants.initial(),
+                      participantId: p))
+                  .toList());
+          final String userId = await firestoreService.createMeat(instance);
+
+          store.dispatch(CreateMeat(instance.copyWith(id: userId)));
+        });
   }
 }

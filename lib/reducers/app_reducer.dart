@@ -10,7 +10,7 @@ AppState appReducer(AppState state, dynamic action) {
   return AppState(
     userState: userReducer(state.userState, action),
     friendsListState: friendsListReducer(state.friendsListState, action),
-    locationsState: locationsReducer(state.locationsState, action),
+    // locationsState: locationsReducer(state.locationsState, action),
     meatState: meatReducer(state.meatState, action),
     restaurantsState: restaurantsReducer(state.restaurantsState, action),
     dismissedState: dismissedRestaurantReducer(state.dismissedState, action),

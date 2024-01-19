@@ -2,29 +2,40 @@ import 'package:dinder/models/app_user_state.dart';
 import 'package:dinder/models/restaurant_state.dart';
 
 class MeatParticipant {
-  final List<Restaurant> selectedRestaurants;
+  final Restaurants selectedRestaurants;
   final String participantId;
 
-  MeatParticipant({required this.selectedRestaurants, required this.participantId});
+  MeatParticipant(
+      {required this.selectedRestaurants, required this.participantId});
 
   factory MeatParticipant.initial() {
-    return MeatParticipant(selectedRestaurants: [], participantId: "");
-  }
-  MeatParticipant copyWith({List<Restaurant>? selectedRestaurants, String? participantId}) {
     return MeatParticipant(
-      selectedRestaurants: selectedRestaurants ?? this.selectedRestaurants,
-      participantId: participantId ?? this.participantId
-    );
+        selectedRestaurants: Restaurants.initial(), participantId: "");
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'participantId': participantId,
+      'selectedRestaurants':
+          selectedRestaurants.restaurants.map((r) => r.toJson())
+    };
+  }
+
+  MeatParticipant copyWith(
+      {Restaurants? selectedRestaurants, String? participantId}) {
+    return MeatParticipant(
+        selectedRestaurants: selectedRestaurants ?? this.selectedRestaurants,
+        participantId: participantId ?? this.participantId);
   }
 }
 
 class Meat {
-  final String meatId;
+  final String id;
   final List<String> cities;
   final String state;
   final String zipcode;
-  final List<Restaurant> availableRestaurants;
-  final List<Restaurant> matchedRestaurants;
+  final Restaurants availableRestaurants;
+  final Restaurants matchedRestaurants;
   final List<MeatParticipant> participants;
   //Kaleigh & Faith Note: we may want to filter the list when we first get it from the API on
   //restarant name so they dont have to swipe left for 16 nadeaus subs
@@ -34,7 +45,7 @@ class Meat {
 
   //Kaleigh Note 4: .... LOL
   Meat(
-      {required this.meatId,
+      {required this.id,
       required this.cities,
       required this.state,
       required this.zipcode,
@@ -43,19 +54,26 @@ class Meat {
       required this.participants});
 
   factory Meat.initial() {
-    return Meat(meatId: "", cities: [], state: "", zipcode: "", availableRestaurants: [], matchedRestaurants: [], participants: []);
+    return Meat(
+        id: "",
+        cities: [],
+        state: "",
+        zipcode: "",
+        availableRestaurants: Restaurants.initial(),
+        matchedRestaurants: Restaurants.initial(),
+        participants: []);
   }
 
   Meat copyWith(
-      {String? meatId,
+      {String? id,
       List<String>? cities,
       String? state,
       String? zipcode,
-      List<Restaurant>? availableRestaurants,
-      List<Restaurant>? matchedRestaurants,
+      Restaurants? availableRestaurants,
+      Restaurants? matchedRestaurants,
       List<MeatParticipant>? participants}) {
     return Meat(
-        meatId: meatId ?? this.meatId,
+        id: id ?? this.id,
         cities: cities ?? this.cities,
         state: state ?? this.state,
         zipcode: zipcode ?? this.zipcode,
@@ -64,8 +82,20 @@ class Meat {
         participants: participants ?? this.participants);
   }
 
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'zipcode': zipcode,
+      'availableRestaurants':
+          availableRestaurants.restaurants.map((r) => r.toJson()),
+      'matchedRestaurants':
+          matchedRestaurants.restaurants.map((r) => r.toJson()),
+      'participants': participants.map((p) => p.toJson()),
+    };
+  }
+
   @override
   String toString() {
-    return "Meat(meatId: $meatId), cities: $cities, state: $state, zipcode: $zipcode, availableRestaurants: $availableRestaurants, matchedRestaurants: $matchedRestaurants, participants: $participants";
+    return "Meat(id: $id), cities: $cities, state: $state, zipcode: $zipcode, availableRestaurants: $availableRestaurants, matchedRestaurants: $matchedRestaurants, participants: $participants";
   }
 }

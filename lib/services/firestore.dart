@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dinder/actions/app_user_actions.dart';
 import 'package:dinder/models/app_user_state.dart';
+import 'package:dinder/models/meat_state.dart';
 import '../shared/ApiPath.dart';
 
 class FirestoreService {
@@ -93,6 +94,26 @@ class FirestoreService {
       await collection.doc(id).set(dataUser);
     } catch (e) {
       print("PATH ERROR $e");
+    }
+  }
+
+  Future<String> createMeat(Meat meat) async {
+    final String path = ApiPath.allMeats;
+    try {
+      final CollectionReference collection =
+          _firebaseFirestore.collection(path);
+
+      Map newMeat = meat.toJson();
+      newMeat.remove('id');
+
+      final response = await collection.add(newMeat);
+      print("Create Meat Response");
+      print(response);
+      return "Dummy string";
+      //we want to get the Id to use
+    } catch (e) {
+      print("PATH ERROR $e");
+      return "Dummy Failure string";
     }
   }
 }
