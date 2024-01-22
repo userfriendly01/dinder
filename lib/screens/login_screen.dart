@@ -130,6 +130,7 @@ class _ViewModel {
       if (user == null) {
         _firestoreService.createUser(id, loggedInUser);
       } else {
+        //need to understand how to convert strings and meats based on user object definition
         final userMeats = user.activeMeats as List<String>;
         final activeMeats = userMeats.map((meatId) async {
           final meat = await _firestoreService.getUserActiveMeat(meatId).first;
