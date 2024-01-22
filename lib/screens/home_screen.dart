@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
 import 'package:redux/redux.dart';
 import 'package:dinder/shared/app_bar.dart';
+import '../services/firestore.dart';
 import '../shared/bottom_menu.dart';
 import '../actions/meat_actions.dart';
 import '../models/app_state.dart';
@@ -14,6 +15,9 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return StoreConnector<AppState, _ViewModel>(
+      // onInitialBuild: (viewModel) {
+      //   viewModel.fetchActiveMeats();
+      // },
       converter: (Store<AppState> store) => _ViewModel.fromStore(store),
       builder: (BuildContext context, _ViewModel vm) {
         // * Example of WidgetsBinding
@@ -53,6 +57,7 @@ class _ViewModel {
   final void Function(String newName) updateDisplayName;
   final void Function(BuildContext context) navigateToFriendsPage;
   final void Function(BuildContext context) navigateToFreshMeatPage;
+  final void Function() fetchActiveMeats;
 
   //dont know if we'll use this and add a reducer function or just Meat()
   //May want to read into forms in flutter a bit
@@ -63,9 +68,12 @@ class _ViewModel {
     required this.updateDisplayName,
     required this.navigateToFriendsPage,
     required this.navigateToFreshMeatPage,
+    required this.fetchActiveMeats,
   });
 
   static fromStore(Store<AppState> store) {
+    final FirestoreService firestoreService = FirestoreService.instance;
+
     return _ViewModel(
         displayName: store.state.userState.displayName,
         createMeat: (Meat meat) => store.dispatch(CreateMeat(meat)),
@@ -76,7 +84,11 @@ class _ViewModel {
         },
         navigateToFreshMeatPage: (BuildContext context) {
           Navigator.pushNamed(context, '/freshMeat');
-        }
-    );
+        },
+        fetchActiveMeats: () {
+          store.state.userState.activeMeats.forEach((meat) {
+            firestoreService.getUserActiveMeat(meat.id);
+          });
+        });
   }
 }

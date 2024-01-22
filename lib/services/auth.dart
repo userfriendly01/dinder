@@ -43,7 +43,8 @@ class AuthService {
             displayName: "",
             email: userCredential.user!.email,
             friends: [],
-            dismissed: []);
+            dismissed: [],
+            activeMeats: []);
         return signedInUser;
       }
     } on FirebaseAuthException catch (e) {
@@ -73,7 +74,8 @@ class AuthService {
             displayName: "",
             email: userCredential.user!.email,
             friends: [],
-            dismissed: []);
+            dismissed: [],
+            activeMeats: []);
         return signedInUser;
       }
     } catch (e) {
@@ -102,7 +104,8 @@ class AuthService {
             displayName: userCredential.user!.displayName,
             email: userCredential.user!.email,
             friends: [],
-            dismissed: []);
+            dismissed: [],
+            activeMeats: []);
         return signedInUser;
       }
     } on FirebaseAuthException catch (e) {

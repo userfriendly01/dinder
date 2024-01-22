@@ -16,14 +16,10 @@ import '../services/firestore.dart';
 import '../services/auth.dart';
 import 'package:http/http.dart' as http;
 
-// Multi select list of friends to make a meet
-// Field to collect zipcode
-// create meat-up button - which does the search and brings you to another screen
-
-Future<http.Response> fetchRestaurants() {
+Future<http.Response> fetchRestaurants(String zipcode) {
   return http.get(
       Uri.parse(
-          'https://restaurants-near-me-usa.p.rapidapi.com/restaurants/location/zipcode/03102/0'),
+          'https://restaurants-near-me-usa.p.rapidapi.com/restaurants/location/zipcode/$zipcode/0'),
       headers: {
         'X-RapidAPI-Key': '17a02516f1mshb1bab854052a656p16a8cajsnedeb620fc3f7',
         'X-RapidAPI-Host': 'restaurants-near-me-usa.p.rapidapi.com'
@@ -133,11 +129,12 @@ class _FreshMeatScreenState extends State<FreshMeatScreen> {
                             setState(() {
                               _errorMessage = "";
                             });
-                            final response = await fetchRestaurants();
+                            final response =
+                                await fetchRestaurants(zipcodeController.text);
                             final resty =
                                 Restaurants.fromJson(jsonDecode(response.body));
-                            vm.createMeat(_selectedFriendsList, resty, "03102");
-                            // FAITH AND KALEIGH - Add Meat ID to users & add self to Meat instance as participant
+                            vm.createMeat(_selectedFriendsList, resty,
+                                zipcodeController.text);
                             // Todo: navigate to the next screen
                           }
                         },
@@ -180,6 +177,14 @@ class _ViewModel {
           .toList();
     }
 
+    List<MeatParticipant> formatParticipants(List<String> participants) {
+      final formattedParticipants = participants
+          .map((p) => MeatParticipant(
+              selectedRestaurants: Restaurants.initial(), participantId: p))
+          .toList();
+      return formattedParticipants;
+    }
+
     return _ViewModel(
         displayName: store.state.userState.displayName != ""
             ? "${store.state.userState.displayName}'s"
@@ -191,6 +196,10 @@ class _ViewModel {
         },
         createMeat: (List<String> participants,
             Restaurants availableRestaurants, String zipcode) async {
+          final inclusiveParticipants = [
+            ...participants,
+            store.state.userState.id
+          ];
           final instance = Meat(
               id: "",
               state: "",
@@ -198,14 +207,13 @@ class _ViewModel {
               cities: [],
               availableRestaurants: availableRestaurants,
               zipcode: zipcode,
-              participants: participants
-                  .map((p) => MeatParticipant(
-                      selectedRestaurants: Restaurants.initial(),
-                      participantId: p))
-                  .toList());
-          final String userId = await firestoreService.createMeat(instance);
+              participants: formatParticipants(inclusiveParticipants));
 
-          store.dispatch(CreateMeat(instance.copyWith(id: userId)));
+          final meatId = await firestoreService.createMeat(instance);
+          inclusiveParticipants
+              .forEach((p) => firestoreService.updateUserActiveMeat(p, meatId));
+
+          store.dispatch(CreateMeat(instance.copyWith(id: meatId)));
         });
   }
 }

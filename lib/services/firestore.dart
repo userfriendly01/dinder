@@ -42,14 +42,35 @@ class FirestoreService {
     return snapshots.map((DocumentSnapshot snapshot) {
       final data = snapshot.data();
       if (data != null && id == snapshot.id) {
-        print("FAITH *** $data");
         final formattedData = data as Map<String, dynamic>;
         formattedData['id'] = id;
         formattedData['isLoggedIn'] = true;
-        return AppUser.fromJson(data);
+        return AppUser.fromJson(formattedData);
       } else {
         print("The user was either null or $id didnt match ${snapshot.id}");
       }
+    });
+  }
+
+  Stream<Meat?> getUserActiveMeat(String meatId) {
+    print("MEAT");
+    final String path = ApiPath.meatById(meatId);
+    final Stream<DocumentSnapshot> snapshots =
+        _firebaseFirestore.doc(path).snapshots();
+
+    return snapshots.map((DocumentSnapshot snapshot) {
+      print("meatId");
+
+      final data = snapshot.data() as Map<String, dynamic>;
+      // if (data != null && meatId == snapshot.id) {
+      // final formattedData = data as Map<String, dynamic>;
+      // formattedData['id'] = meatId;
+      print(Meat.fromJson(data));
+      return Meat.fromJson(data);
+      // } else {
+      //   print("The user was either null or $meatId didnt match ${snapshot.id}");
+      //   return null;
+      // }
     });
   }
 
@@ -74,6 +95,25 @@ class FirestoreService {
 
       await document.set(
         {'friends': friends},
+        SetOptions(merge: true),
+      );
+    } catch (e) {
+      print('User update friends failed $e');
+    }
+  }
+
+  Future<void> updateUserActiveMeat(String userId, String meatId) async {
+    try {
+      final String path = ApiPath.userById(userId);
+      final DocumentReference document = _firebaseFirestore.doc(path);
+      print("WE GOT TO UPDATE ACTIVE MEATS");
+      print(userId);
+      print(meatId);
+
+      await document.set(
+        {
+          'activeMeats': [meatId]
+        },
         SetOptions(merge: true),
       );
     } catch (e) {
@@ -108,8 +148,8 @@ class FirestoreService {
 
       final response = await collection.add(newMeat);
       print("Create Meat Response");
-      print(response);
-      return "Dummy string";
+      print(response.id);
+      return response.id;
       //we want to get the Id to use
     } catch (e) {
       print("PATH ERROR $e");

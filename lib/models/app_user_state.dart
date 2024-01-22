@@ -1,5 +1,7 @@
 import 'package:json_annotation/json_annotation.dart';
 
+import 'meat_state.dart';
+
 part 'app_user_state.g.dart';
 
 @JsonSerializable()
@@ -10,6 +12,7 @@ class AppUser {
   final String? email;
   final List<String> friends;
   final List<String> dismissed;
+  final List<Meat> activeMeats;
 
   AppUser(
       {required this.id,
@@ -17,7 +20,8 @@ class AppUser {
       this.displayName,
       this.email,
       required this.friends,
-      required this.dismissed});
+      required this.dismissed,
+      required this.activeMeats});
 
   factory AppUser.initial(bool isLoggedIn) {
     return AppUser(
@@ -26,7 +30,8 @@ class AppUser {
         displayName: "",
         email: "",
         friends: [],
-        dismissed: []);
+        dismissed: [],
+        activeMeats: []);
   }
 
   //Kaleigh Note 1- This is the "spread" we were looking for with the reducers.. Basically models/
@@ -39,23 +44,26 @@ class AppUser {
       String? displayName,
       String? email,
       List<String>? friends,
-      List<String>? dismissed}) {
+      List<String>? dismissed,
+      List<Meat>? activeMeats}) {
     return AppUser(
         id: id ?? this.id,
         isLoggedIn: isLoggedIn ?? this.isLoggedIn,
         displayName: displayName ?? this.displayName,
         email: email ?? this.email,
         friends: friends ?? this.friends,
-        dismissed: dismissed ?? this.dismissed);
+        dismissed: dismissed ?? this.dismissed,
+        activeMeats: activeMeats ?? this.activeMeats);
   }
 
   factory AppUser.fromJson(Map<String, dynamic> json) =>
       _$AppUserFromJson(json);
   Map<String, dynamic> toJson() => _$AppUserToJson(this);
 
+//Find a way to fix active meat instantiation here vs the generated file
   @override
   String toString() {
-    return "AppUser(id: $id, isLoggedIn: $isLoggedIn, name: $displayName, email: $email, friends: $friends, dismissed: $dismissed)";
+    return "AppUser(id: $id, isLoggedIn: $isLoggedIn, name: $displayName, email: $email, friends: $friends, dismissed: $dismissed, activeMeats: $activeMeats)";
   }
 }
 

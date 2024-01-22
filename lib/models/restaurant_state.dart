@@ -82,40 +82,28 @@ class Restaurant {
   factory Restaurant.fromJson(Map<String, dynamic> json) {
     print("json");
     print(json);
-    return switch (json) {
-      {
-        'id': int id,
-        'restaurantName': String restaurantName,
-        'address': String address,
-        'cityName': String cityName,
-        'cuisineType': String cuisineType,
-        'hoursInterval': String hoursInterval,
-        'website': String website,
-        'phone': String phone
-      } =>
-        Restaurant(
-            id: id,
-            restaurantName: restaurantName,
-            address: address,
-            cityName: cityName,
-            cuisineType: cuisineType,
-            hoursInterval: hoursInterval,
-            website: website,
-            phone: phone),
-      _ => throw const FormatException('Failed to load Restaurant')
-    };
+
+    return Restaurant(
+        id: json["id"],
+        restaurantName: json["restaurantName"],
+        address: json["address"] ?? "",
+        cityName: json["cityName"] ?? "",
+        cuisineType: json["cuisineType"] ?? "",
+        hoursInterval: json["hoursInterval"] ?? "",
+        website: json["website"] ?? "",
+        phone: json["phone"] ?? "");
   }
 
   Map<String, dynamic> toJson() {
     return {
       'id': id,
       'restaurantName': restaurantName,
-      'address': address,
-      'cityName': cityName,
-      'cuisineType': cuisineType,
-      'hoursInterval': hoursInterval,
-      'website': website,
-      'phone': phone
+      'address': address ?? "",
+      'cityName': cityName ?? "",
+      'cuisineType': cuisineType ?? "",
+      'hoursInterval': hoursInterval ?? "",
+      'website': website ?? "",
+      'phone': phone ?? ""
     };
   }
 

@@ -1,5 +1,6 @@
 import 'package:dinder/actions/app_user_actions.dart';
 import 'package:dinder/models/app_state.dart';
+import 'package:dinder/models/meat_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
 import 'package:redux/redux.dart';
@@ -33,13 +34,23 @@ class _LoginScreenState extends State<LoginScreen> {
       converter: (Store<AppState> store) => _ViewModel.fromStore(store),
       builder: (BuildContext context, _ViewModel vm) {
         return Scaffold(
-          body: Padding(
+            body: Padding(
           padding: const EdgeInsets.all(48.0),
           child: Column(children: [
             const Padding(
               padding: EdgeInsets.all(35),
-              child: Text("Dinder", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 38, color: Colors.deepPurple),),),
-            const Text("Login", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),),
+              child: Text(
+                "Dinder",
+                style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 38,
+                    color: Colors.deepPurple),
+              ),
+            ),
+            const Text(
+              "Login",
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
+            ),
             TextField(
               controller: emailController,
               decoration: const InputDecoration(hintText: "Email"),
@@ -53,15 +64,14 @@ class _LoginScreenState extends State<LoginScreen> {
             Padding(
               padding: const EdgeInsets.only(bottom: 20.0),
               child: ElevatedButton(
-                  onPressed: () {
-                    vm.onSubmitEmailPassword(emailController.text,
-                        passwordController.text, "Register");
-                  },
-                  style: ElevatedButton.styleFrom(
-                    minimumSize: const Size(300, 50)
-                  ),
-                  child: const Text('Sign up'),
-                ),
+                onPressed: () {
+                  vm.onSubmitEmailPassword(emailController.text,
+                      passwordController.text, "Register");
+                },
+                style:
+                    ElevatedButton.styleFrom(minimumSize: const Size(300, 50)),
+                child: const Text('Sign up'),
+              ),
             ),
             Padding(
               padding: const EdgeInsets.only(bottom: 20.0),
@@ -72,9 +82,8 @@ class _LoginScreenState extends State<LoginScreen> {
                   vm.onSubmitEmailPassword(
                       emailController.text, passwordController.text, "Login");
                 },
-                style: ElevatedButton.styleFrom(
-                    minimumSize: const Size(300, 50)
-                ),
+                style:
+                    ElevatedButton.styleFrom(minimumSize: const Size(300, 50)),
                 child: const Text('Login with email and password'),
               ),
             ),
@@ -86,9 +95,8 @@ class _LoginScreenState extends State<LoginScreen> {
                       const SnackBar(content: Text("Logging in...")));
                   vm.onSubmitGoogle();
                 },
-                style: ElevatedButton.styleFrom(
-                    minimumSize: const Size(300, 50)
-                  ),
+                style:
+                    ElevatedButton.styleFrom(minimumSize: const Size(300, 50)),
                 child: const Text('Login with Google'),
               ),
             )
@@ -122,10 +130,18 @@ class _ViewModel {
       if (user == null) {
         _firestoreService.createUser(id, loggedInUser);
       } else {
+        final userMeats = user.activeMeats as List<String>;
+        final activeMeats = userMeats.map((meatId) async {
+          final meat = await _firestoreService.getUserActiveMeat(meatId).first;
+          return meat;
+        }).toList() as List<Meat>;
+        print("ACTIVE MEATS");
+        print(activeMeats);
         loggedInUser = loggedInUser.copyWith(
             displayName: user.displayName,
             friends: user.friends,
-            dismissed: user.dismissed);
+            dismissed: user.dismissed,
+            activeMeats: activeMeats);
       }
       store.dispatch(LogInUser(loggedInUser));
     }

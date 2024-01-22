@@ -82,6 +82,26 @@ class Meat {
         participants: participants ?? this.participants);
   }
 
+  factory Meat.fromJson(Map<String, dynamic> json) {
+    print("json");
+    print(json);
+
+    return Meat(
+        id: json["id"],
+        cities: json["cities"],
+        state: json["state"],
+        zipcode: json["zipcode"],
+        availableRestaurants: json['availableRestaurants']
+            ? Restaurants.fromJson(
+                {"restaurants": json['availableRestaurants'] as List<dynamic>})
+            : Restaurants.initial(),
+        matchedRestaurants: json['matchedRestaurants']
+            ? Restaurants.fromJson(
+                {"restaurants": json['matchedRestaurants'] as List<dynamic>})
+            : Restaurants.initial(),
+        participants: json["participants"]);
+  }
+
   Map<String, dynamic> toJson() {
     return {
       'id': id,

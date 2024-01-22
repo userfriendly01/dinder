@@ -15,6 +15,9 @@ AppUser _$AppUserFromJson(Map<String, dynamic> json) => AppUser(
           (json['friends'] as List<dynamic>).map((e) => e as String).toList(),
       dismissed:
           (json['dismissed'] as List<dynamic>).map((e) => e as String).toList(),
+      activeMeats: (json['activeMeats'] as List<dynamic>)
+          .map((id) => Meat.initial().copyWith(id: id))
+          .toList(),
     );
 
 Map<String, dynamic> _$AppUserToJson(AppUser instance) => <String, dynamic>{
@@ -24,4 +27,5 @@ Map<String, dynamic> _$AppUserToJson(AppUser instance) => <String, dynamic>{
       'email': instance.email,
       'friends': instance.friends,
       'dismissed': instance.dismissed,
+      'activeMeats': instance.activeMeats,
     };
