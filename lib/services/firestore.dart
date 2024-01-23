@@ -112,15 +112,10 @@ class FirestoreService {
       final String path = ApiPath.userById(userId);
       final DocumentReference document = _firebaseFirestore.doc(path);
       print("WE GOT TO UPDATE ACTIVE MEATS");
-      print(userId);
-      print(meatId);
 
-      await document.set(
-        {
-          'activeMeats': [meatId]
-        },
-        SetOptions(merge: true),
-      );
+      await document.update({
+        'activeMeats': FieldValue.arrayUnion([meatId])
+      });
     } catch (e) {
       print('User update friends failed $e');
     }

@@ -43,6 +43,24 @@ class HomeScreen extends StatelessWidget {
             children: [
               const Text("HOME!"),
               Text('yo ${vm.displayName}'),
+              ListView.separated(
+                  primary: false,
+                  shrinkWrap: true,
+                  itemCount: vm.activeMeats.length,
+                  separatorBuilder: (BuildContext context, int index) {
+                    return const Divider(color: Colors.grey);
+                  },
+                  itemBuilder: (BuildContext context, int index) {
+                    final meat = vm.activeMeats[index];
+                    return ListTile(
+                        title: Text("${meat.id}"),
+                        trailing: IconButton(
+                          onPressed: () {
+                            // vm.removeFriend(friend);
+                          },
+                          icon: const Icon(Icons.delete),
+                        ));
+                  })
             ],
           ),
         );
@@ -53,6 +71,7 @@ class HomeScreen extends StatelessWidget {
 
 class _ViewModel {
   final String? displayName;
+  final List<dynamic> activeMeats;
   final void Function(Meat newMeat) createMeat;
   final void Function(String newName) updateDisplayName;
   final void Function(BuildContext context) navigateToFriendsPage;
@@ -64,6 +83,7 @@ class _ViewModel {
 
   const _ViewModel({
     required this.displayName,
+    required this.activeMeats,
     required this.createMeat,
     required this.updateDisplayName,
     required this.navigateToFriendsPage,
@@ -76,6 +96,7 @@ class _ViewModel {
 
     return _ViewModel(
         displayName: store.state.userState.displayName,
+        activeMeats: store.state.userState.activeMeats,
         createMeat: (Meat meat) => store.dispatch(CreateMeat(meat)),
         updateDisplayName: (String newName) =>
             store.dispatch(UpdateDisplayName(newName)),
