@@ -59,18 +59,23 @@ class FirestoreService {
         _firebaseFirestore.doc(path).snapshots();
 
     return snapshots.map((DocumentSnapshot snapshot) {
-      print("meatId");
+      print("meatId in GAUM $meatId");
+      print("snapshot.id ${snapshot.id}");
 
       final data = snapshot.data() as Map<String, dynamic>;
-      // if (data != null && meatId == snapshot.id) {
-      // final formattedData = data as Map<String, dynamic>;
-      // formattedData['id'] = meatId;
-      print(Meat.fromJson(data));
-      return Meat.fromJson(data);
-      // } else {
-      //   print("The user was either null or $meatId didnt match ${snapshot.id}");
-      //   return null;
-      // }
+      if (meatId == snapshot.id) {
+        final formattedData = data as Map<String, dynamic>;
+        List<String> cities = [];
+        formattedData['id'] = meatId;
+        formattedData['cities'] = cities;
+        formattedData['state'] = "";
+        print("data");
+        print(data);
+        return Meat.fromJson(data);
+      } else {
+        print("The user was either null or $meatId didnt match ${snapshot.id}");
+        return null;
+      }
     });
   }
 

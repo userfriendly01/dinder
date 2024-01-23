@@ -177,12 +177,12 @@ class _ViewModel {
           .toList();
     }
 
-    List<MeatParticipant> formatParticipants(List<String> participants) {
+    MeatParticipants formatParticipants(List<String> participants) {
       final formattedParticipants = participants
           .map((p) => MeatParticipant(
               selectedRestaurants: Restaurants.initial(), participantId: p))
           .toList();
-      return formattedParticipants;
+      return MeatParticipants(participants: formattedParticipants);
     }
 
     return _ViewModel(

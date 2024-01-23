@@ -12,7 +12,7 @@ class AppUser {
   final String? email;
   final List<String> friends;
   final List<String> dismissed;
-  final List<Meat> activeMeats;
+  final List<dynamic> activeMeats;
 
   AppUser(
       {required this.id,

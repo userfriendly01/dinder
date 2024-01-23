@@ -1,6 +1,32 @@
 import 'package:dinder/models/app_user_state.dart';
 import 'package:dinder/models/restaurant_state.dart';
 
+class MeatParticipants {
+  final List<MeatParticipant> participants;
+
+  MeatParticipants({required this.participants});
+
+  factory MeatParticipants.initial() {
+    return MeatParticipants(participants: []);
+  }
+
+  factory MeatParticipants.fromJson(Map<String, dynamic> json) {
+    // final restaurantList = array.map((item) => Restaurant.fromJson(item)).toList();
+    // return Restaurants(restaurants: restaurantList);
+    return switch (json) {
+      {'participants': List<dynamic> participants} => MeatParticipants(
+          participants: participants
+              .map((item) => MeatParticipant.fromJson(item))
+              .toList()),
+      _ => throw const FormatException('Failed to load participants')
+    };
+  }
+
+  MeatParticipants copyWith({List<MeatParticipant>? participants}) {
+    return MeatParticipants(participants: participants ?? this.participants);
+  }
+}
+
 class MeatParticipant {
   final Restaurants selectedRestaurants;
   final String participantId;
@@ -11,6 +37,14 @@ class MeatParticipant {
   factory MeatParticipant.initial() {
     return MeatParticipant(
         selectedRestaurants: Restaurants.initial(), participantId: "");
+  }
+
+  factory MeatParticipant.fromJson(Map<String, dynamic> json) {
+    return MeatParticipant(
+      participantId: json["participantId"],
+      selectedRestaurants: Restaurants.fromJson(
+          {"restaurants": json['selectedRestaurants'] as List<dynamic>}),
+    );
   }
 
   Map<String, dynamic> toJson() {
@@ -36,7 +70,7 @@ class Meat {
   final String zipcode;
   final Restaurants availableRestaurants;
   final Restaurants matchedRestaurants;
-  final List<MeatParticipant> participants;
+  final MeatParticipants participants;
   //Kaleigh & Faith Note: we may want to filter the list when we first get it from the API on
   //restarant name so they dont have to swipe left for 16 nadeaus subs
 
@@ -61,7 +95,7 @@ class Meat {
         zipcode: "",
         availableRestaurants: Restaurants.initial(),
         matchedRestaurants: Restaurants.initial(),
-        participants: []);
+        participants: MeatParticipants.initial());
   }
 
   Meat copyWith(
@@ -71,7 +105,7 @@ class Meat {
       String? zipcode,
       Restaurants? availableRestaurants,
       Restaurants? matchedRestaurants,
-      List<MeatParticipant>? participants}) {
+      MeatParticipants? participants}) {
     return Meat(
         id: id ?? this.id,
         cities: cities ?? this.cities,
@@ -91,15 +125,12 @@ class Meat {
         cities: json["cities"],
         state: json["state"],
         zipcode: json["zipcode"],
-        availableRestaurants: json['availableRestaurants']
-            ? Restaurants.fromJson(
-                {"restaurants": json['availableRestaurants'] as List<dynamic>})
-            : Restaurants.initial(),
-        matchedRestaurants: json['matchedRestaurants']
-            ? Restaurants.fromJson(
-                {"restaurants": json['matchedRestaurants'] as List<dynamic>})
-            : Restaurants.initial(),
-        participants: json["participants"]);
+        availableRestaurants: Restaurants.fromJson(
+            {"restaurants": json['availableRestaurants'] as List<dynamic>}),
+        matchedRestaurants: Restaurants.fromJson(
+            {"restaurants": json['matchedRestaurants'] as List<dynamic>}),
+        participants: MeatParticipants.fromJson(
+            {"participants": json['participants'] as List<dynamic>}));
   }
 
   Map<String, dynamic> toJson() {
@@ -110,7 +141,7 @@ class Meat {
           availableRestaurants.restaurants.map((r) => r.toJson()),
       'matchedRestaurants':
           matchedRestaurants.restaurants.map((r) => r.toJson()),
-      'participants': participants.map((p) => p.toJson()),
+      'participants': participants.participants.map((p) => p.toJson()),
     };
   }
 

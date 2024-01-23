@@ -131,13 +131,15 @@ class _ViewModel {
         _firestoreService.createUser(id, loggedInUser);
       } else {
         //need to understand how to convert strings and meats based on user object definition
-        final userMeats = user.activeMeats as List<String>;
-        final activeMeats = userMeats.map((meatId) async {
+        final userMeats = user.activeMeats;
+        List<Meat>? activeMeats = [];
+        await Future.wait(userMeats.map((meatId) async {
           final meat = await _firestoreService.getUserActiveMeat(meatId).first;
-          return meat;
-        }).toList() as List<Meat>;
-        print("ACTIVE MEATS");
-        print(activeMeats);
+          if (meat != null) {
+            activeMeats.add(meat);
+          }
+        }));
+
         loggedInUser = loggedInUser.copyWith(
             displayName: user.displayName,
             friends: user.friends,
