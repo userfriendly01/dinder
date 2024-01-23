@@ -35,8 +35,22 @@ class FreshMeatScreen extends StatefulWidget {
 
 class _FreshMeatScreenState extends State<FreshMeatScreen> {
   final TextEditingController zipcodeController = TextEditingController();
+  DateTime selectedDate = DateTime.now();
   List<String> _selectedFriendsList = [];
   String _errorMessage = "";
+
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+        context: context,
+        initialDate: selectedDate,
+        firstDate: DateTime.now(),
+        lastDate: DateTime(2101));
+    if (picked != null && picked != selectedDate) {
+      setState(() {
+        selectedDate = picked;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -63,6 +77,12 @@ class _FreshMeatScreenState extends State<FreshMeatScreen> {
                 TextField(
                   controller: zipcodeController,
                   decoration: const InputDecoration(hintText: "Zipcode"),
+                ),
+                Text("${selectedDate.toLocal()}".split(' ')[0], style: const TextStyle(fontSize: 30, fontWeight: FontWeight.bold),),
+                const SizedBox(height: 20.0,),
+                ElevatedButton(
+                  onPressed: () => _selectDate(context),
+                  child: const Text('Select date'),
                 ),
                 const Padding(padding: EdgeInsets.all(30)),
                 Text(vm.friendsList.isEmpty
@@ -134,7 +154,7 @@ class _FreshMeatScreenState extends State<FreshMeatScreen> {
                             final resty =
                                 Restaurants.fromJson(jsonDecode(response.body));
                             vm.createMeat(_selectedFriendsList, resty,
-                                zipcodeController.text);
+                                zipcodeController.text, selectedDate.toString());
                             // Todo: navigate to the next screen
                           }
                         },
@@ -157,7 +177,7 @@ class _FreshMeatScreenState extends State<FreshMeatScreen> {
 class _ViewModel {
   final String? displayName;
   final void Function() loadFriends;
-  final void Function(List<String>, Restaurants, String) createMeat;
+  final void Function(List<String>, Restaurants, String, String) createMeat;
   final List<AppUser> friendsList;
 
   const _ViewModel({
@@ -195,13 +215,14 @@ class _ViewModel {
           store.dispatch(LoadFriendsList(possibleFriends));
         },
         createMeat: (List<String> participants,
-            Restaurants availableRestaurants, String zipcode) async {
+            Restaurants availableRestaurants, String zipcode, String date) async {
           final inclusiveParticipants = [
             ...participants,
             store.state.userState.id
           ];
           final instance = Meat(
               id: "",
+              date: date,
               state: "",
               matchedRestaurants: Restaurants.initial(),
               cities: [],

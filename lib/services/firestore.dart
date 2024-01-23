@@ -60,7 +60,6 @@ class FirestoreService {
 
     return snapshots.map((DocumentSnapshot snapshot) {
       print("meatId in GAUM $meatId");
-      print("snapshot.id ${snapshot.id}");
 
       final data = snapshot.data() as Map<String, dynamic>;
       if (meatId == snapshot.id) {
@@ -69,8 +68,6 @@ class FirestoreService {
         formattedData['id'] = meatId;
         formattedData['cities'] = cities;
         formattedData['state'] = "";
-        print("data");
-        print(data);
         return Meat.fromJson(data);
       } else {
         print("The user was either null or $meatId didnt match ${snapshot.id}");

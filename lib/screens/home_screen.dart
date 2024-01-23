@@ -52,14 +52,51 @@ class HomeScreen extends StatelessWidget {
                   },
                   itemBuilder: (BuildContext context, int index) {
                     final meat = vm.activeMeats[index];
-                    return ListTile(
-                        title: Text("${meat.id}"),
-                        trailing: IconButton(
-                          onPressed: () {
-                            // vm.removeFriend(friend);
-                          },
-                          icon: const Icon(Icons.delete),
-                        ));
+                    return Card(
+                      child: Column(children: [
+                      Row(
+                        children: [
+                          Padding(padding: EdgeInsets.only(top: 30, left: 30) ),
+                          SizedBox(
+                            child: Center(
+                              child: Text('Date: ${meat.date}'),
+                            ),
+                          )
+                        ],
+                      ),
+                      Row(
+                        children: [
+                          Padding(padding: EdgeInsets.only(left: 30) ),
+                          SizedBox(
+                            child: Center(
+                              child: Text('Location: ${meat.zipcode}'),
+                            ),
+                          )
+                        ],
+                      ),
+                      Row(
+                        children: [
+                          Padding(padding: EdgeInsets.only(bottom: 30, left: 30) ),
+                          SizedBox(
+                            child: Center(
+                              child: Text('Number of peeps: ${meat.participants.participants.length}'),
+                            ),
+                          )
+                        ],
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          IconButton(
+                            onPressed: () {
+                              // vm.removeFriend(friend);
+                            },
+                            icon: const Icon(Icons.delete),
+                          )
+                        ],
+                      ),
+                      ],)
+                    );
                   })
             ],
           ),

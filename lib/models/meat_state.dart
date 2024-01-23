@@ -65,6 +65,7 @@ class MeatParticipant {
 
 class Meat {
   final String id;
+  final String date;
   final List<String> cities;
   final String state;
   final String zipcode;
@@ -80,6 +81,7 @@ class Meat {
   //Kaleigh Note 4: .... LOL
   Meat(
       {required this.id,
+      required this.date,
       required this.cities,
       required this.state,
       required this.zipcode,
@@ -90,6 +92,7 @@ class Meat {
   factory Meat.initial() {
     return Meat(
         id: "",
+        date: "",
         cities: [],
         state: "",
         zipcode: "",
@@ -100,6 +103,7 @@ class Meat {
 
   Meat copyWith(
       {String? id,
+      String? date,
       List<String>? cities,
       String? state,
       String? zipcode,
@@ -108,6 +112,7 @@ class Meat {
       MeatParticipants? participants}) {
     return Meat(
         id: id ?? this.id,
+        date: date ?? this.date,
         cities: cities ?? this.cities,
         state: state ?? this.state,
         zipcode: zipcode ?? this.zipcode,
@@ -117,11 +122,9 @@ class Meat {
   }
 
   factory Meat.fromJson(Map<String, dynamic> json) {
-    print("json");
-    print(json);
-
     return Meat(
         id: json["id"],
+        date: json["date"],
         cities: json["cities"],
         state: json["state"],
         zipcode: json["zipcode"],
@@ -136,6 +139,7 @@ class Meat {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
+      'date': date,
       'zipcode': zipcode,
       'availableRestaurants':
           availableRestaurants.restaurants.map((r) => r.toJson()),
@@ -147,6 +151,6 @@ class Meat {
 
   @override
   String toString() {
-    return "Meat(id: $id), cities: $cities, state: $state, zipcode: $zipcode, availableRestaurants: $availableRestaurants, matchedRestaurants: $matchedRestaurants, participants: $participants";
+    return "Meat(id: $id), date: $date, cities: $cities, state: $state, zipcode: $zipcode, availableRestaurants: $availableRestaurants, matchedRestaurants: $matchedRestaurants, participants: $participants";
   }
 }

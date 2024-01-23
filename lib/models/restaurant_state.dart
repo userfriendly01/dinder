@@ -80,9 +80,6 @@ class Restaurant {
   }
 
   factory Restaurant.fromJson(Map<String, dynamic> json) {
-    print("json");
-    print(json);
-
     return Restaurant(
         id: json["id"],
         restaurantName: json["restaurantName"],
