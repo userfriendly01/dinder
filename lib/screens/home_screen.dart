@@ -53,13 +53,18 @@ class HomeScreen extends StatelessWidget {
                   itemBuilder: (BuildContext context, int index) {
                     final meat = vm.activeMeats[index];
                     return Card(
-                      child: Column(children: [
+                      child: InkWell(
+                        splashColor: Colors.purple.withAlpha(30),
+                        onTap: () {
+                          vm.initiateMeatSwipe(context, meat.id);
+                        },
+                        child: Column(children: [
                       Row(
                         children: [
                           Padding(padding: EdgeInsets.only(top: 30, left: 30) ),
                           SizedBox(
                             child: Center(
-                              child: Text('Date: ${meat.date}'),
+                              child: Text('Date: ${meat.date} at ${meat.time}'),
                             ),
                           )
                         ],
@@ -95,7 +100,9 @@ class HomeScreen extends StatelessWidget {
                           )
                         ],
                       ),
-                      ],)
+                      ]
+                      )
+                      ,)
                     );
                   })
             ],
@@ -109,11 +116,11 @@ class HomeScreen extends StatelessWidget {
 class _ViewModel {
   final String? displayName;
   final List<dynamic> activeMeats;
-  final void Function(Meat newMeat) createMeat;
   final void Function(String newName) updateDisplayName;
   final void Function(BuildContext context) navigateToFriendsPage;
   final void Function(BuildContext context) navigateToFreshMeatPage;
   final void Function() fetchActiveMeats;
+  final void Function(BuildContext context, String meatId) initiateMeatSwipe;
 
   //dont know if we'll use this and add a reducer function or just Meat()
   //May want to read into forms in flutter a bit
@@ -121,11 +128,11 @@ class _ViewModel {
   const _ViewModel({
     required this.displayName,
     required this.activeMeats,
-    required this.createMeat,
     required this.updateDisplayName,
     required this.navigateToFriendsPage,
     required this.navigateToFreshMeatPage,
     required this.fetchActiveMeats,
+    required this.initiateMeatSwipe
   });
 
   static fromStore(Store<AppState> store) {
@@ -134,7 +141,6 @@ class _ViewModel {
     return _ViewModel(
         displayName: store.state.userState.displayName,
         activeMeats: store.state.userState.activeMeats,
-        createMeat: (Meat meat) => store.dispatch(CreateMeat(meat)),
         updateDisplayName: (String newName) =>
             store.dispatch(UpdateDisplayName(newName)),
         navigateToFriendsPage: (BuildContext context) {
@@ -147,6 +153,12 @@ class _ViewModel {
           store.state.userState.activeMeats.forEach((meat) {
             firestoreService.getUserActiveMeat(meat.id);
           });
-        });
+        },
+        initiateMeatSwipe: (BuildContext context, String meatId) {
+          final meat = store.state.userState.activeMeats.where((meat) => meat.id == meatId).first;
+          store.dispatch(CreateMeat(meat));
+          Navigator.pushNamed(context, "/swipeMeat");
+        }
+      );
   }
 }

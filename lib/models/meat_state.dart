@@ -66,6 +66,7 @@ class MeatParticipant {
 class Meat {
   final String id;
   final String date;
+  final String time;
   final List<String> cities;
   final String state;
   final String zipcode;
@@ -82,6 +83,7 @@ class Meat {
   Meat(
       {required this.id,
       required this.date,
+      required this.time,
       required this.cities,
       required this.state,
       required this.zipcode,
@@ -93,6 +95,7 @@ class Meat {
     return Meat(
         id: "",
         date: "",
+        time: "",
         cities: [],
         state: "",
         zipcode: "",
@@ -104,6 +107,7 @@ class Meat {
   Meat copyWith(
       {String? id,
       String? date,
+      String? time,
       List<String>? cities,
       String? state,
       String? zipcode,
@@ -113,6 +117,7 @@ class Meat {
     return Meat(
         id: id ?? this.id,
         date: date ?? this.date,
+        time: time ?? this.time,
         cities: cities ?? this.cities,
         state: state ?? this.state,
         zipcode: zipcode ?? this.zipcode,
@@ -125,6 +130,7 @@ class Meat {
     return Meat(
         id: json["id"],
         date: json["date"],
+        time: json["time"],
         cities: json["cities"],
         state: json["state"],
         zipcode: json["zipcode"],
@@ -140,6 +146,7 @@ class Meat {
     return {
       'id': id,
       'date': date,
+      'time': time,
       'zipcode': zipcode,
       'availableRestaurants':
           availableRestaurants.restaurants.map((r) => r.toJson()),
@@ -151,6 +158,6 @@ class Meat {
 
   @override
   String toString() {
-    return "Meat(id: $id), date: $date, cities: $cities, state: $state, zipcode: $zipcode, availableRestaurants: $availableRestaurants, matchedRestaurants: $matchedRestaurants, participants: $participants";
+    return "Meat(id: $id), date: $date, time: $time, cities: $cities, state: $state, zipcode: $zipcode, availableRestaurants: $availableRestaurants, matchedRestaurants: $matchedRestaurants, participants: $participants";
   }
 }

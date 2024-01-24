@@ -21,7 +21,7 @@ Future<http.Response> fetchRestaurants(String zipcode) {
       Uri.parse(
           'https://restaurants-near-me-usa.p.rapidapi.com/restaurants/location/zipcode/$zipcode/0'),
       headers: {
-        'X-RapidAPI-Key': '17a02516f1mshb1bab854052a656p16a8cajsnedeb620fc3f7',
+        'X-RapidAPI-Key': '3730291681mshe6bb77aa8a5780dp13bd68jsne2270c034d0c',
         'X-RapidAPI-Host': 'restaurants-near-me-usa.p.rapidapi.com'
       });
 }
@@ -126,7 +126,6 @@ class _FreshMeatScreenState extends State<FreshMeatScreen> {
                           ElevatedButton(
                             onPressed: () => _selectTime(context),
                             child: const Text('Select time'),
-                            //TODO - Save Time
                           ),
                         ],
                       )
@@ -208,8 +207,9 @@ class _FreshMeatScreenState extends State<FreshMeatScreen> {
                                   _selectedFriendsList,
                                   resty,
                                   zipcodeController.text,
-                                  selectedDate.toString());
-                              // Todo: navigate to the next screen
+                                  selectedDate.toString(),
+                                  selectedTime.format(context));
+                              Navigator.pushNamed(context, "/swipeMeat");
                             }
                           },
                           child: const Text("Create Meat-Up"))
@@ -222,7 +222,7 @@ class _FreshMeatScreenState extends State<FreshMeatScreen> {
               ),
             ),
           ),
-          bottomNavigationBar: BottomMenu(currentIndex: 2),
+          bottomNavigationBar: BottomMenu(currentIndex: 4),
         );
       },
     );
@@ -232,7 +232,7 @@ class _FreshMeatScreenState extends State<FreshMeatScreen> {
 class _ViewModel {
   final String? displayName;
   final void Function() loadFriends;
-  final void Function(List<String>, Restaurants, String, String) createMeat;
+  final void Function(List<String>, Restaurants, String, String, String) createMeat;
   final List<AppUser> friendsList;
 
   const _ViewModel({
@@ -272,14 +272,16 @@ class _ViewModel {
         createMeat: (List<String> participants,
             Restaurants availableRestaurants,
             String zipcode,
-            String date) async {
+            String date,
+            String time) async {
           final inclusiveParticipants = [
             ...participants,
             store.state.userState.id
           ];
           final instance = Meat(
               id: "",
-              date: date,
+              date: date.split(' ')[0],
+              time: time,
               state: "",
               matchedRestaurants: Restaurants.initial(),
               cities: [],

@@ -1,6 +1,7 @@
 import 'package:dinder/models/app_state.dart';
 import 'package:dinder/screens/fresh_meat_screen.dart';
 import 'package:dinder/screens/login_screen.dart';
+import 'package:dinder/screens/swipe_your_meat_screen.dart';
 import 'package:dinder/services/analytics.dart';
 // import 'package:firebase_analytics/observer.dart';
 import 'package:flutter/material.dart';
@@ -43,6 +44,7 @@ class DinderApp extends StatelessWidget {
                 '/friends': (context) => FriendsScreen(),
                 '/myprofile': (context) => MyProfileScreen(),
                 '/freshMeat': (context) => FreshMeatScreen(),
+                '/swipeMeat': (context) => SwipeYourMeatScreen(),
               },
               initialRoute: '/');
         },
