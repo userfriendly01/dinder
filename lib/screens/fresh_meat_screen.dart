@@ -218,11 +218,15 @@ class _FreshMeatScreenState extends State<FreshMeatScreen> {
                             Navigator.pushNamed(context, "/friends");
                           },
                           child: const Text("Find some Friends")),
+                  const Image(
+                    image: NetworkImage(
+                        'https://maps.google.com/maps/contrib/116909085031849693380/AWU5eFiuEw7e3HPjIayxSYHE12ntdOJy5FbBwXNVPqIxYfxbFbef9-ioTfq8kkVIO_EaGrwWKJ1TajP-rDQ_vQbNxDeOd7i2ZsRUcFrBQhvhNg4cgjXHm1JJ3Txj6PAlaKqaRrwqIk-swbvBAFLHMqtCVl7qSSV-qABtrX697K9vxyL0eAGW'),
+                  )
                 ],
               ),
             ),
           ),
-          bottomNavigationBar: BottomMenu(currentIndex: 4),
+          bottomNavigationBar: BottomMenu(currentIndex: 0),
         );
       },
     );
@@ -232,7 +236,8 @@ class _FreshMeatScreenState extends State<FreshMeatScreen> {
 class _ViewModel {
   final String? displayName;
   final void Function() loadFriends;
-  final void Function(List<String>, Restaurants, String, String, String) createMeat;
+  final void Function(List<String>, Restaurants, String, String, String)
+      createMeat;
   final List<AppUser> friendsList;
 
   const _ViewModel({

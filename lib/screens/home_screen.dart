@@ -3,11 +3,25 @@ import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
 import 'package:redux/redux.dart';
 import 'package:dinder/shared/app_bar.dart';
+import 'package:url_launcher/link.dart';
 import '../services/firestore.dart';
 import '../shared/bottom_menu.dart';
 import '../actions/meat_actions.dart';
 import '../models/app_state.dart';
 import '../models/meat_state.dart';
+
+/*
+  TODO:
+    Create a listener so that users get auto updated with friend requests & matches
+    Create on Swipe right/left/down functions
+    Create a tutorial lay over
+    Migrate to the google places API
+    Refactor to search by city/town
+    Use Next token when provided
+    Split up access by subscriber type
+    Make cards prettier/final
+    Make adding friends a request vs auto
+*/
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -53,58 +67,60 @@ class HomeScreen extends StatelessWidget {
                   itemBuilder: (BuildContext context, int index) {
                     final meat = vm.activeMeats[index];
                     return Card(
-                      child: InkWell(
-                        splashColor: Colors.purple.withAlpha(30),
-                        onTap: () {
-                          vm.initiateMeatSwipe(context, meat.id);
-                        },
-                        child: Column(children: [
-                      Row(
-                        children: [
-                          Padding(padding: EdgeInsets.only(top: 30, left: 30) ),
-                          SizedBox(
-                            child: Center(
-                              child: Text('Date: ${meat.date} at ${meat.time}'),
-                            ),
-                          )
-                        ],
-                      ),
-                      Row(
-                        children: [
-                          Padding(padding: EdgeInsets.only(left: 30) ),
-                          SizedBox(
-                            child: Center(
-                              child: Text('Location: ${meat.zipcode}'),
-                            ),
-                          )
-                        ],
-                      ),
-                      Row(
-                        children: [
-                          Padding(padding: EdgeInsets.only(bottom: 30, left: 30) ),
-                          SizedBox(
-                            child: Center(
-                              child: Text('Number of peeps: ${meat.participants.participants.length}'),
-                            ),
-                          )
-                        ],
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          IconButton(
-                            onPressed: () {
-                              // vm.removeFriend(friend);
-                            },
-                            icon: const Icon(Icons.delete),
-                          )
-                        ],
-                      ),
-                      ]
-                      )
-                      ,)
-                    );
-                  })
+                        child: InkWell(
+                      splashColor: Colors.purple.withAlpha(30),
+                      onTap: () {
+                        vm.initiateMeatSwipe(context, meat.id);
+                      },
+                      child: Column(children: [
+                        Row(
+                          children: [
+                            Padding(
+                                padding: EdgeInsets.only(top: 30, left: 30)),
+                            SizedBox(
+                              child: Center(
+                                child:
+                                    Text('Date: ${meat.date} at ${meat.time}'),
+                              ),
+                            )
+                          ],
+                        ),
+                        Row(
+                          children: [
+                            Padding(padding: EdgeInsets.only(left: 30)),
+                            SizedBox(
+                              child: Center(
+                                child: Text('Location: ${meat.zipcode}'),
+                              ),
+                            )
+                          ],
+                        ),
+                        Row(
+                          children: [
+                            Padding(
+                                padding: EdgeInsets.only(bottom: 30, left: 30)),
+                            SizedBox(
+                              child: Center(
+                                child: Text(
+                                    'Number of peeps: ${meat.participants.participants.length}'),
+                              ),
+                            )
+                          ],
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            IconButton(
+                              onPressed: () {
+                                // vm.removeFriend(friend);
+                              },
+                              icon: const Icon(Icons.delete),
+                            )
+                          ],
+                        ),
+                      ]),
+                    ));
+                  }),
             ],
           ),
         );
@@ -125,15 +141,14 @@ class _ViewModel {
   //dont know if we'll use this and add a reducer function or just Meat()
   //May want to read into forms in flutter a bit
 
-  const _ViewModel({
-    required this.displayName,
-    required this.activeMeats,
-    required this.updateDisplayName,
-    required this.navigateToFriendsPage,
-    required this.navigateToFreshMeatPage,
-    required this.fetchActiveMeats,
-    required this.initiateMeatSwipe
-  });
+  const _ViewModel(
+      {required this.displayName,
+      required this.activeMeats,
+      required this.updateDisplayName,
+      required this.navigateToFriendsPage,
+      required this.navigateToFreshMeatPage,
+      required this.fetchActiveMeats,
+      required this.initiateMeatSwipe});
 
   static fromStore(Store<AppState> store) {
     final FirestoreService firestoreService = FirestoreService.instance;
@@ -155,10 +170,11 @@ class _ViewModel {
           });
         },
         initiateMeatSwipe: (BuildContext context, String meatId) {
-          final meat = store.state.userState.activeMeats.where((meat) => meat.id == meatId).first;
+          final meat = store.state.userState.activeMeats
+              .where((meat) => meat.id == meatId)
+              .first;
           store.dispatch(CreateMeat(meat));
           Navigator.pushNamed(context, "/swipeMeat");
-        }
-      );
+        });
   }
 }
