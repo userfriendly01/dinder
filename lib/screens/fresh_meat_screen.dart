@@ -36,6 +36,8 @@ class FreshMeatScreen extends StatefulWidget {
 class _FreshMeatScreenState extends State<FreshMeatScreen> {
   final TextEditingController zipcodeController = TextEditingController();
   DateTime selectedDate = DateTime.now();
+  TimeOfDay selectedTime = TimeOfDay.now();
+
   List<String> _selectedFriendsList = [];
   String _errorMessage = "";
 
@@ -52,6 +54,16 @@ class _FreshMeatScreenState extends State<FreshMeatScreen> {
     }
   }
 
+  Future<void> _selectTime(BuildContext context) async {
+    var picked =
+        await showTimePicker(context: context, initialTime: selectedTime);
+    if (picked != null && picked != selectedTime) {
+      setState(() {
+        selectedTime = picked;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return StoreConnector<AppState, _ViewModel>(
@@ -63,108 +75,151 @@ class _FreshMeatScreenState extends State<FreshMeatScreen> {
       converter: (Store<AppState> store) => _ViewModel.fromStore(store),
       builder: (BuildContext context, _ViewModel vm) {
         return Scaffold(
+          resizeToAvoidBottomInset: false,
           appBar: const DinderAppBar(),
-          body: Container(
-            padding: const EdgeInsets.all(30),
-            child: Column(
-              children: [
-                const Text(
-                  "Create A New Meat!",
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
-                ),
-                const Padding(padding: EdgeInsets.all(30)),
-                const Text("Where do you want to meat?"),
-                TextField(
-                  controller: zipcodeController,
-                  decoration: const InputDecoration(hintText: "Zipcode"),
-                ),
-                Text("${selectedDate.toLocal()}".split(' ')[0], style: const TextStyle(fontSize: 30, fontWeight: FontWeight.bold),),
-                const SizedBox(height: 20.0,),
-                ElevatedButton(
-                  onPressed: () => _selectDate(context),
-                  child: const Text('Select date'),
-                ),
-                const Padding(padding: EdgeInsets.all(30)),
-                Text(vm.friendsList.isEmpty
-                    ? "Oh no! You need some friends"
-                    : "Select your friends"),
-                ListView.separated(
-                  primary: false,
-                  shrinkWrap: true,
-                  itemCount: vm.friendsList.length,
-                  separatorBuilder: (BuildContext context, int index) {
-                    return const Divider(color: Colors.grey);
-                  },
-                  itemBuilder: (BuildContext context, int index) {
-                    final friend = vm.friendsList[index];
-                    return ListTile(
-                      title: Text("${friend.displayName}"),
-                      selected: _selectedFriendsList.contains(friend.id),
-                      selectedTileColor:
-                          const Color.fromARGB(255, 196, 169, 208),
-                      onTap: () {
-                        List<String> updatedList = _selectedFriendsList;
-                        if (_selectedFriendsList.contains(friend.id)) {
-                          print("REMOVE ${friend.id}");
-                          updatedList.remove(friend.id);
-                        } else {
-                          print("ADD ${friend.id}");
-                          updatedList.add(friend.id);
-                        }
-                        setState(() {
-                          _selectedFriendsList = updatedList;
-                        });
-                      },
-                    );
-                  },
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(10),
-                  child: Text(
-                    _errorMessage,
-                    style: const TextStyle(color: Colors.red),
+          body: SingleChildScrollView(
+            child: Container(
+              padding: const EdgeInsets.all(30),
+              child: Column(
+                children: [
+                  const Text(
+                    "Create A New Meat!",
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
                   ),
-                ),
-                // If user has no friends we render a button that navigates to the friend page
-                vm.friendsList.isNotEmpty
-                    ? ElevatedButton(
-                        onPressed: () async {
-                          bool isZipValid =
-                              RegExp(r"^\d{5}(-\d{4})?$", caseSensitive: false)
-                                  .hasMatch(zipcodeController.text);
-                          if (_selectedFriendsList.isEmpty) {
-                            setState(() {
-                              _errorMessage = "Oops, select some friends.";
-                            });
-                          } else if (zipcodeController.text == "") {
-                            setState(() {
-                              _errorMessage = "Oh no!  Enter a zipcode.";
-                            });
-                          } else if (!isZipValid) {
-                            setState(() {
-                              _errorMessage =
-                                  "Hmmmm... I don't think that zipcode is real...";
-                            });
+                  const Padding(padding: EdgeInsets.all(30)),
+                  const Text("Where do you want to meat?"),
+                  TextField(
+                    controller: zipcodeController,
+                    decoration: const InputDecoration(hintText: "Zipcode"),
+                  ),
+                  const Padding(padding: EdgeInsets.all(25)),
+                  const Text("When do you want to meat?"),
+                  const Padding(padding: EdgeInsets.all(10)),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            "${selectedDate.toLocal()}".split(' ')[0],
+                            style: const TextStyle(
+                                fontSize: 25, fontWeight: FontWeight.bold),
+                          ),
+                          const Padding(padding: EdgeInsets.all(10)),
+                          ElevatedButton(
+                            onPressed: () => _selectDate(context),
+                            child: const Text('Select date'),
+                          ),
+                        ],
+                      ),
+                      const Padding(padding: EdgeInsets.all(20)),
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            selectedTime.format(context),
+                            style: const TextStyle(
+                                fontSize: 25, fontWeight: FontWeight.bold),
+                          ),
+                          const Padding(padding: EdgeInsets.all(10)),
+                          ElevatedButton(
+                            onPressed: () => _selectTime(context),
+                            child: const Text('Select time'),
+                            //TODO - Save Time
+                          ),
+                        ],
+                      )
+                    ],
+                  ),
+
+                  const Padding(padding: EdgeInsets.all(25)),
+                  Text(vm.friendsList.isEmpty
+                      ? "Oh no! You need some friends"
+                      : "Select your friends"),
+                  ListView.separated(
+                    primary: false,
+                    // scrollDirection: Axis.vertical,
+                    shrinkWrap: true,
+                    // physics: const ClampingScrollPhysics(),
+                    itemCount: vm.friendsList.length,
+                    separatorBuilder: (BuildContext context, int index) {
+                      return const Divider(color: Colors.grey);
+                    },
+                    itemBuilder: (BuildContext context, int index) {
+                      final friend = vm.friendsList[index];
+                      return ListTile(
+                        title: Text("${friend.displayName}"),
+                        selected: _selectedFriendsList.contains(friend.id),
+                        selectedTileColor:
+                            const Color.fromARGB(255, 196, 169, 208),
+                        onTap: () {
+                          List<String> updatedList = _selectedFriendsList;
+                          if (_selectedFriendsList.contains(friend.id)) {
+                            print("REMOVE ${friend.id}");
+                            updatedList.remove(friend.id);
                           } else {
-                            setState(() {
-                              _errorMessage = "";
-                            });
-                            final response =
-                                await fetchRestaurants(zipcodeController.text);
-                            final resty =
-                                Restaurants.fromJson(jsonDecode(response.body));
-                            vm.createMeat(_selectedFriendsList, resty,
-                                zipcodeController.text, selectedDate.toString());
-                            // Todo: navigate to the next screen
+                            print("ADD ${friend.id}");
+                            updatedList.add(friend.id);
                           }
+                          setState(() {
+                            _selectedFriendsList = updatedList;
+                          });
                         },
-                        child: const Text("Create Meat-Up"))
-                    : ElevatedButton(
-                        onPressed: () {
-                          Navigator.pushNamed(context, "/friends");
-                        },
-                        child: const Text("Find some Friends")),
-              ],
+                      );
+                    },
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(10),
+                    child: Text(
+                      _errorMessage,
+                      style: const TextStyle(color: Colors.red),
+                    ),
+                  ),
+                  // If user has no friends we render a button that navigates to the friend page
+                  vm.friendsList.isNotEmpty
+                      ? ElevatedButton(
+                          onPressed: () async {
+                            bool isZipValid = RegExp(r"^\d{5}(-\d{4})?$",
+                                    caseSensitive: false)
+                                .hasMatch(zipcodeController.text);
+                            if (_selectedFriendsList.isEmpty) {
+                              setState(() {
+                                _errorMessage = "Oops, select some friends.";
+                              });
+                            } else if (zipcodeController.text == "") {
+                              setState(() {
+                                _errorMessage = "Oh no!  Enter a zipcode.";
+                              });
+                            } else if (!isZipValid) {
+                              setState(() {
+                                _errorMessage =
+                                    "Hmmmm... I don't think that zipcode is real...";
+                              });
+                            } else {
+                              setState(() {
+                                _errorMessage = "";
+                              });
+                              final response = await fetchRestaurants(
+                                  zipcodeController.text);
+                              final resty = Restaurants.fromJson(
+                                  jsonDecode(response.body));
+                              vm.createMeat(
+                                  _selectedFriendsList,
+                                  resty,
+                                  zipcodeController.text,
+                                  selectedDate.toString());
+                              // Todo: navigate to the next screen
+                            }
+                          },
+                          child: const Text("Create Meat-Up"))
+                      : ElevatedButton(
+                          onPressed: () {
+                            Navigator.pushNamed(context, "/friends");
+                          },
+                          child: const Text("Find some Friends")),
+                ],
+              ),
             ),
           ),
           bottomNavigationBar: BottomMenu(currentIndex: 2),
@@ -215,7 +270,9 @@ class _ViewModel {
           store.dispatch(LoadFriendsList(possibleFriends));
         },
         createMeat: (List<String> participants,
-            Restaurants availableRestaurants, String zipcode, String date) async {
+            Restaurants availableRestaurants,
+            String zipcode,
+            String date) async {
           final inclusiveParticipants = [
             ...participants,
             store.state.userState.id
